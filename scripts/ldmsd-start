@@ -1,0 +1,5 @@
+#!/bin/bash
+
+. /opt/ovis/etc/profile.d/set-ovis-variables.sh
+
+ldmsd -l /var/log/ldmsd.log -c /opt/ovis/etc/ldms.conf

@@ -1,0 +1,20 @@
+{
+    "id": 1,
+    "uid": "i3vyeUQ7k",
+    "orgId": 1,
+    "name": "Sos",
+    "type": "sosds",
+    "typeName": "Sos",
+    "typeLogoUrl": "public/plugins/sosds/img/ogc_logo.png",
+    "access": "proxy",
+    "url": "http://ui/grafana/",
+    "password": "",
+    "user": "",
+    "database": "",
+    "basicAuth": false,
+    "isDefault": true,
+    "jsonData": {
+        "sosVersion": "dsos"
+    },
+    "readOnly": false
+}

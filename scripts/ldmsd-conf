@@ -1,0 +1,271 @@
+#!/bin/bash
+
+USAGE=$( cat <<EOF
+NAME
+    ldmsd-conf - generate simple config for containerized ldmsd
+
+SYNOPSIS
+    ldmsd-conf [--port LISTEN_PORT] [--samp "SAMPLER_PLUGIN_LIST"]
+	       [--prdcr "PRDCR_LIST"] [--strgp "SCHEMA_LIST"]
+	       [--strgp-conf CONF_FILE] [--store-path STORE_PATH]
+	       [--interval USEC] [--offset USEC] [--name LDMSD_NAME]
+	       [--compid NUM] [--mem MEM_SZ]
+
+EXAMPLES
+    # for sampler
+    ldmsd-conf --samp "meminfo vmstat" --interval 1000000 --offset 0
+
+    # for L1 aggregator
+    ldmsd-conf --prdcr "samp-{01..04} samp-{09..12}" \\
+               --interval 1000000 --offset 200000
+
+    # for L2 aggregator with SOS store
+    ldmsd-conf --prdcr "agg-{11,12}" --strgp "vmstat meminfo" \\
+               --interval 1000000 --offset 400000
+
+
+DESCRIPTION
+    ldmsd-conf script generates simple configuration for ldmsd. The
+    configuration is printed to the stdout.
+
+OPTIONS
+    --port LISTEN_PORT   (default: 411)
+        The port to listen to.
+
+    --name LDMSD_NAME    (default: \$HOSTNAME)
+	The '-n' (name) option supplied to ldmsd.
+
+    --samp "SAMPLER_PLUGIN_LIST"   (default: EMPTY)
+	Generate the load, config, start commands for the plugins in the
+	"SAMPLER_PLUGIN_LIST". The list is SPACE separated and support Bash
+	Brace Expansion (see bash(1) "Brace Expansion" for more info). The
+	option can be specified multiple times. In such case, the lists will be
+	concatinated together.
+
+    --prdcr "PRDCR_LIST"   (default: EMPTY)
+	Generate the prdcr_add, updtr_prdcr_add commands for the producers in
+	the "PRDCR_LIST". The list is SPACE separated and support Bash Brace
+	Expansion (see bash(1) "Brace Expansion" for more info). The option can
+	be specified multiple times. In such case, the lists will be
+	concatinated together.
+
+    --strgp "SCHEMA_LIST"   (default: EMPTY)
+	Generate the strgp for each of the schema in the SCHEMA_LIST. The list
+	is SPACE separated and support Bash Brace Expansion (see bash(1) "Brace
+	Expansion" for more info). The option can be specified multiple times.
+	In such case, the lists will be concatinated together.
+
+    --strgp-conf CONF_FILE  (default: EMPTY)
+	The extra storages and storage policies configuration. If the file is
+	specified, the content of the file will be appended to the STRGP section
+	of the output.
+
+    --store-path STORE_PATH   (default: "/store")
+	The 'path' option to store_sos plugin. Note that if the strgp
+	SCHEMA_LIST is empty, store_sos won't be loaded.
+
+    --interval USEC   (default: 1000000)
+        The "interval" option for sampler or prdcr + updtr.
+
+    --offset USEC   (default: 0)
+        The "offset" option for sampler or updtr.
+
+    --compid NUM    (default: numbers in the \$NAME)
+        The value to supply to 'component_id' parameter for the sampler config.
+
+    --mem MEM_SZ  (default: empty)
+	The size of the memory pool for LDMS set (e.g. 2G).
+EOF
+)
+
+SAMPLER_PLUGIN_LIST=( )
+PRDCR_LIST=( )
+STRGP_SCHEMA_LIST=( )
+INTERVAL=1000000
+OFFSET=0
+PORT=411
+STORE_PATH="/store"
+COMPID=
+STRGP_CONF=
+MEM=
+
+list_add() {
+	L=$1
+	shift
+	eval "${L}+=( $@ )"
+}
+
+var_inspect() {
+	NAME=$1
+	local X
+	echo "var $NAME:"
+	eval "for X in \"\${${NAME}[@]}\"; do echo \"   \" \$X; done"
+}
+
+sort_uniq() {
+	local X
+	for X in "$@"; do
+		echo "$X";
+	done | sort | uniq
+}
+
+#### Parse CLI options ####
+
+# convert --arg=value to --arg "value"
+ARGS=( )
+for X in "$@"; do
+	if [[ "$X" == --*=* ]]; then
+		ARGS+=( "${X%%=*}" "${X#*=}" )
+	else
+		ARGS+=( "$X" )
+	fi
+done
+set -- "${ARGS[@]}"
+
+while (($#)); do
+	case "$1" in
+	--port)
+		shift
+		PORT=$1
+		;;
+	--samp)
+		shift
+		list_add SAMPLER_PLUGIN_LIST $1
+		;;
+	--prdcr)
+		shift
+		list_add PRDCR_LIST $1
+		;;
+	--strgp)
+		shift
+		list_add STRGP_SCHEMA_LIST $1
+		;;
+	--strgp-conf)
+		shift
+		STRGP_CONF=$1
+		;;
+	--store-path|--path)
+		shift
+		STORE_PATH="$1"
+		;;
+	--interval)
+		shift
+		INTERVAL=$1
+		;;
+	--offset)
+		shift
+		OFFSET=$1
+		;;
+	--name)
+		shift
+		LDMSD_NAME=$1
+		;;
+	--mem)
+		shift
+		MEM=$1
+		;;
+	--compid|--component_id)
+		shift
+		COMPID=$1
+		;;
+	-h|-?)
+		cat <<<"$USAGE"
+		exit 0
+		;;
+	*)
+		echo "Unknown option: $1"
+		echo "'$0 -h' to see usage"
+		exit -1
+		;;
+	esac
+	shift
+done
+
+INTERVAL=${INTERVAL:-1000000}
+OFFSET=${OFFSET:-200000}
+XPRT=sock
+LDMSD_NAME=${LDMSD_NAME:-\$\{HOSTNAME\}}
+
+[[ -n "$COMPID" ]] || COMPID=$( echo ${LDMSD_NAME} | sed 's/[^0-9]//g' )
+
+#var_inspect INTERVAL
+#var_inspect OFFSET
+#var_inspect SAMPLER_PLUGIN_LIST
+#var_inspect PRDCR_LIST
+#var_inspect STRGP_SCHEMA_LIST
+
+cat <<EOF
+option -n ${LDMSD_NAME}
+$( [[ -z "${MEM}" ]] || echo "option -m ${MEM}" )
+listen port=${PORT} xprt=${XPRT}
+EOF
+
+#### store plugin ####
+if [[ "${#STRGP_SCHEMA_LIST[@]}" -gt 0 ]]; then
+	cat <<-EOF
+
+	load name=store_sos
+	config name=store_sos path=${STORE_PATH}
+	EOF
+fi
+
+#### sampler plugin ####
+L="\n"
+SAMPLER_PLUGIN_LIST=( $(sort_uniq "${SAMPLER_PLUGIN_LIST[@]}") )
+for SAMP in ${SAMPLER_PLUGIN_LIST[@]}; do
+	echo -ne "${L}"
+	cat <<-EOF
+	load name=${SAMP}
+	config name=${SAMP} producer=\${HOSTNAME} instance=\${HOSTNAME}/${SAMP} component_id=${COMPID}
+	start name=${SAMP} interval=${INTERVAL} offset=${OFFSET}
+	EOF
+	L=""
+done
+
+#### PRDCR ####
+L="\n"
+PRDCR_LIST=( $(sort_uniq "${PRDCR_LIST[@]}") )
+for PRDCR in ${PRDCR_LIST[@]}; do
+	if [[ "$PRDCR" == *:* ]]; then
+		H=${PRDCR%%:*}
+		P=${PRDCR#*:}
+	else
+		H=${PRDCR}
+		P=411
+	fi
+	echo -ne "${L}"
+	cat <<-EOF
+	prdcr_add name=${H} type=active xprt=${XPRT} port=${P} host=${H} interval=${INTERVAL}
+	EOF
+	L=""
+done
+
+#### STRGP ####
+L="\n"
+STRGP_SCHEMA_LIST=( $(sort_uniq "${STRGP_SCHEMA_LIST[@]}") )
+for SCHEMA in ${STRGP_SCHEMA_LIST[@]}; do
+	STRGP="strgp_${SCHEMA}"
+	echo -ne "${L}"
+	cat <<-EOF
+	strgp_add name=${STRGP} plugin=store_sos container=${SCHEMA} schema=${SCHEMA}
+	strgp_prdcr_add name=${STRGP} regex=.*
+	strgp_start name=${STRGP}
+	EOF
+	L=""
+done
+
+if [[ -f "${STRGP_CONF}" ]]; then
+	cat "${STRGP_CONF}"
+fi
+
+#### UPDTR ####
+if [[ "${#PRDCR_LIST[@]}" -gt 0 ]]; then
+	cat <<-EOF
+
+	updtr_add name=updtr interval=${INTERVAL} offset=${OFFSET}
+	updtr_prdcr_add name=updtr regex=.*
+
+	prdcr_start_regex regex=.*
+	updtr_start name=updtr
+	EOF
+fi

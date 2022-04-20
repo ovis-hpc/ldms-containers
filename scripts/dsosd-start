@@ -1,0 +1,9 @@
+#!/bin/bash
+set -e
+
+# start rpcbind if needed
+rpcinfo >/dev/null 2>&1 || rpcbind start
+
+export DSOSD_DIRECTORY=/opt/ovis/etc/dsosd.json
+
+dsosd >/var/log/dsosd.log 2>&1 &

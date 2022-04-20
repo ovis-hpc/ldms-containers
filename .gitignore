@@ -1,0 +1,4 @@
+csv_store
+*.swp
+.ovis/
+.scripts/
