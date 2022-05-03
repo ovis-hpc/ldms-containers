@@ -4,10 +4,11 @@ LOG() {
 	echo $(date +"%F %T") "$@"
 }
 
+SOCK=/sock/grafana.sock
+rm -f ${SOCK}
+
 # invoke grafana run script
 /run.sh >/var/log/grafana/run.log 2>&1 &
-
-SOCK=/sock/grafana.sock
 
 {
 while true; do

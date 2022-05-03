@@ -5,8 +5,8 @@ SUBNET=192.168.40.0/24
 
 #### docker run options ####
 CAPADDS=(
-	SYS_ADMIN
-	SYS_PTRACE
+	#SYS_ADMIN
+	#SYS_PTRACE
 )
 OPT_CAPADDS=( ${CAPADDS[@]/#/--cap-add=} )
 
