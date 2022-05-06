@@ -93,16 +93,26 @@ Preparing Docker
 Running sampler containers
 ==========================
 
+By default, `ovishpc/ldms-samp` is run with privileged and in the same
+namespaces (pid, network, uts, and ipc namespaces) as the host so that the
+container's `/proc` and `/sys` are the same as host's. `--no-host-namespaces`
+option can be given to disable the privileged and configuring the container to
+run in its own namespaces. Note that in this case, some information in `/proc`
+and `/sys` in the container will be different from the host's (e.g.
+`/proc/net/dev`).
+
 Issue the following `./ldms-samp/run.sh` command on the baremetal hosts that
 will run the sampler container. For example:
-
 ```sh
-node-01 $ ./ldms-samp/run.sh --name samp-01 --samp "loadavg meminfo vmstat"
+# on node-1
+node-01 $ ./ldms-samp/run.sh --samp "loadavg meminfo vmstat"
 
-node-02 $ ./ldms-samp/run.sh --name samp-02 --samp "loadavg meminfo vmstat"
+
+# on node-2
+node-02 $ ./ldms-samp/run.sh --samp "loadavg meminfo vmstat"
 ```
-
-The above example run `samp-01` container on `node-01` and `samp-02` container
+Without the `--name` parameter, the default name is the `$HOSTNAME`.
+The above example run `node-01` container on `node-01` and `node-02` container
 on `node-02` with 3 sampler plugins: loadavg, meminfo and vmstat. Please note
 that the sampler plugins specified here must be a "simple" plugins, i.e. they
 only need 'load', 'config', 'start' ldmsd commands with basic parameters.
@@ -110,9 +120,18 @@ only need 'load', 'config', 'start' ldmsd commands with basic parameters.
 In the case of complex configuration, the config file in the container can be
 overridden by:
 ```sh
-$ ./ldms-samp/run.sh --name samp-03 \
+$ ./ldms-samp/run.sh \
     -v /PATH/TO/CONFIG/ON/HOST:/opt/ovis/etc/ldms.conf
 ```
+
+`--pdsh PDSH_HOSTLIST` can be supplied to remotely execute `docker run` to
+deploy the containers on the specified hosts. For example,
+```sh
+headnode $ ./ldms-samp/run.sh --pdsh "ssh:nid[00001-20]" --samp "loadavg meminfo"
+```
+The command executes `docker run` on nid00001, ..., nid00020 over with `pdsh`
+over SSH, deploying ldms-samp containers (with the same name as hostname) with
+loadavg and meminfo samplers (default port 411, auth none).
 
 For more information, please see USAGE in `ldms-samp/run.sh`.
 
