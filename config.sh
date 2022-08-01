@@ -1,0 +1,98 @@
+#!/bin/bash
+#
+# This file contains environment variables used in:
+# - scripts/build-ovis-binaries.sh
+# - recipes/ldms-dev/docker-build.sh
+# - recipes/ldms-samp/docker-build.sh
+# - recipes/ldms-agg/docker-build.sh
+# - recipes/ldms-ui/docker-build.sh
+# - recipes/ldms-grafana/docker-build.sh
+
+# All relative paths in this file is relative to top source dir (this directory)
+
+# Path to ovis binaries (built by or to be built by
+# `scripts/build-ovis-binaries.sh`)
+OVIS=ovis
+
+############################################
+# ---- scripts/build-ovis-binaries.sh ---- #
+############################################
+
+# OVIS git repository and branch to check out from
+#OVIS_REPO=https://github.com/ovis-hpc/ovis
+#OVIS_BRANCH=OVIS-4
+OVIS_REPO=https://github.com/ovis-hpc/ovis
+OVIS_BRANCH=c7577d4
+
+# SOS git repository and branch to check out from
+SOS_REPO=https://github.com/ovis-hpc/sos
+SOS_BRANCH=SOS-6
+
+# Maestro git repository and branch to check out from
+#MAESTRO_REPO=https://github.com/ovis-hpc/maestro
+#MAESTRO_BRANCH=master
+MAESTRO_REPO=https://github.com/ovis-hpc/maestro
+MAESTRO_BRANCH=72e02e2
+
+# The name of the container for building OVIS binaries. This can be anything.
+BUILD_CONT=ldms-cont-ovis-build
+
+# The build image containing OVIS build prerequisites.
+BUILD_IMG=ovishpc/ldms-dev
+
+# OVIS prefix INSIDE the container. Please do not change this.
+PREFIX=/opt/ovis
+
+# configure OPTIONS for SOS other than --prefix (*** This is a bash array ***)
+SOS_OPTIONS=(
+	CFLAGS=\"-O2\"
+)
+
+# configure OPTIONS for OVIS other than --prefix (*** This is a bash array ***)
+OVIS_OPTIONS=(
+	--enable-python
+	--enable-etc
+	--enable-doc
+	--enable-doc-man
+
+	# tests
+	--enable-zaptest
+	--enable-ldms-test
+	--enable-test_sampler
+	--enable-list_sampler
+	--enable-record_sampler
+
+	# extra xprt
+	--enable-rdma
+
+	# auth
+	--enable-munge
+
+	# stores
+	--enable-sos
+	--with-sos=${PREFIX}
+	--enable-store-app
+	--with-kafka=yes
+
+	# samplers
+	--enable-tutorial-sampler
+	--enable-tutorial-store
+	--enable-app-sampler
+	--enable-papi
+
+	CFLAGS=\"-O2\"
+)
+
+# ---- UI components ---- #
+PREFIX_UI=${PREFIX}/ui
+NUMSOS_REPO=https://github.com/narategithub/numsos
+NUMSOS_BRANCH=stage
+NUMSOS_OPTIONS=()
+
+SOSDBUI_REPO=https://github.com/nick-enoent/sosdb-ui
+SOSDBUI_BRANCH=500069d
+SOSDBUI_OPTIONS=()
+
+SOSDBGRAFANA_REPO=https://github.com/nick-enoent/sosdb-grafana
+SOSDBGRAFANA_BRANCH=e5eb534
+SOSDBGRAFANA_OPTIONS=()
