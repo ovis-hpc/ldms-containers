@@ -1,0 +1,7 @@
+{
+  "name": "SOS-2",
+  "type": "dsosds",
+  "access": "proxy",
+  "isDefault": true,
+  "url": "http://mtest-ui/grafana"
+}
