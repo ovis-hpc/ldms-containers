@@ -9,9 +9,8 @@ SHELL [ "/bin/bash", "-c" ]
 # Get LDMS dependencies
 RUN export DEBIAN_FRONTEND=noninteractive ; \
     apt-get update -y ; \
-    apt-get install -y librdmacm1 libibverbs1 libpapi6.0 libpfm4 munge \
-                       python3 python3-pip python3-yaml etcd \
-                       ; \
+    apt-get install -y librdmacm1 libibverbs1 libpapi6.0 libpfm4 munge ; \
+    apt-get install -y python3 python3-pip python3-yaml etcd ; \
     apt-get autoremove -y ; \
     apt-get clean -y ;
 
@@ -74,7 +73,7 @@ chmod 755 /health-check.sh
 
 
 RUN echo > /start.sh -e "#!/bin/bash\
-\n# Start etcd and then maestro daemon.\n\
+\n# Start etcd, munged and then maestro daemon.\n\
 set -e\n\
 etcd --config-file /etc/etcd.yaml >/var/log/etcd.log 2>&1 &\n\
 N=5\n\
@@ -87,11 +86,30 @@ while (( N )) ; do\n\
   (( ! N )) || sleep 1\n\
 done\n\
 (( CHECKED )) || { echo 'etcd health check failed' ; exit 1 ; }\n\
+\n\
+HOST_MUNGE=\$( mount | grep '\\/run\\/munge' 2>/dev/null || true ) \n\
+if [[ -z \"\${HOST_MUNGE}\" ]] ; then\n\
+  mkdir -p /var/run/munge\n\
+  chown munge:munge /var/run/munge\n\
+  su -s /bin/bash munge bash -c munged\
+  sleep 1\n\
+fi\n\
+\n# check munge\n\
+OUT=\$( echo abc | munge | unmunge | tail -n1 || true )\n\
+if [[ \"\${OUT}\" == \"abc\" ]]; then\n\
+  echo \"Munge check OK\"\n\
+else\n\
+  echo \"Munge check failed\"\n\
+  exit -1\n\
+fi\n\
+\n\
 maestro_ctrl --prefix maestro --cluster /etc/cluster.yaml --ldms_config /etc/ldms_cfg.yaml\n\
 sleep 5\n\
 maestro --prefix maestro --cluster /etc/cluster.yaml\n\
 " ; \
 chmod 755 /start.sh ;
+
+RUN dd if=/dev/zero of=/etc/munge/munge.key bs=4096 count=1
 
 HEALTHCHECK --interval=5s --start-period=10s CMD /health-check.sh || exit 1
 

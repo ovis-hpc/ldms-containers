@@ -22,11 +22,11 @@ OVIS=ovis
 #OVIS_REPO=https://github.com/ovis-hpc/ovis
 #OVIS_BRANCH=OVIS-4
 OVIS_REPO=https://github.com/ovis-hpc/ovis
-OVIS_BRANCH=c7577d4
+OVIS_BRANCH=70ea2017
 
 # SOS git repository and branch to check out from
 SOS_REPO=https://github.com/ovis-hpc/sos
-SOS_BRANCH=SOS-6
+SOS_BRANCH=f91f1413
 
 # Maestro git repository and branch to check out from
 #MAESTRO_REPO=https://github.com/ovis-hpc/maestro
@@ -85,8 +85,8 @@ OVIS_OPTIONS=(
 
 # ---- UI components ---- #
 PREFIX_UI=${PREFIX}/ui
-NUMSOS_REPO=https://github.com/narategithub/numsos
-NUMSOS_BRANCH=stage
+NUMSOS_REPO=https://github.com/nick-enoent/numsos
+NUMSOS_BRANCH=b9d1742
 NUMSOS_OPTIONS=()
 
 SOSDBUI_REPO=https://github.com/nick-enoent/sosdb-ui

@@ -77,7 +77,7 @@ for C in mtest-samp-{1..4}; do
 	COMPID=${C#mtest-samp-}
 	docker run -d --name ${C} --hostname ${C} --network ${NET} \
 		-e COMPID=${COMPID} \
-		ovishpc/ldms-samp
+		ovishpc/ldms-samp -x sock:411
 done
 
 for C in mtest-samp-{1..4}; do
@@ -88,7 +88,7 @@ done
 # aggregators
 for C in mtest-agg-{11,12}; do
 	_INFO starting $C
-	docker run -d --name ${C} --hostname ${C} --network ${NET} ovishpc/ldms-agg
+	docker run -d --name ${C} --hostname ${C} --network ${NET} ovishpc/ldms-agg -x sock:411
 done
 
 for C in mtest-agg-{11,12}; do
@@ -100,16 +100,13 @@ done
 C=mtest-agg-2
 _INFO starting ${C}
 docker run -d --name ${C} --hostname ${C} --network ${NET}  \
-	   -v ${PWD}/store:/store:rw ovishpc/ldms-agg
+	   -v ${PWD}/store:/store:rw ovishpc/ldms-agg -x sock:411
 wait_running ${C} || _ERROR_EXIT "${C} is not running"
 _INFO "${C} is running"
 
 _INFO "Collecting data (into SOS)"
 # collect some data
 sleep 10
-
-#echo -n "Press ENTER to continue ..."
-#read
 
 # Stop updater on L1 daemons to stop data collection
 docker kill mtest-agg-{11,12}

@@ -31,8 +31,23 @@ ENV ZAP_LIBPATH=/opt/ovis/lib/ovis-ldms
 RUN echo > /opt/ovis/sbin/ldmsd.sh -e "#!/bin/bash\n\
 \n# Add '-x sock:411' to the CLI argument -x has not been specified.\n\
 OPTS=\"\$*\"\n\
-if [[ \" \$OPTS \" != *\\ -x\\ * ]]; then\n\
-  OPTS=\"\${OPTS} -x sock:411\"\n\
+if [[ \" \${OPTS} \" == *\\ munge\\ * ]]; then\
+\n   # Want munge\n\
+  HOST_MUNGE=\$( mount | grep '\\/run\\/munge' 2>/dev/null ) \n\
+  if [[ -z \"\${HOST_MUNGE}\" ]] ; then\n\
+    mkdir -p /var/run/munge\n\
+    chown munge:munge /var/run/munge\n\
+    su -s /bin/bash munge bash -c munged\
+    sleep 1\n\
+  fi\n\
+\n  # check munge\n\
+  OUT=\$( echo abc | munge | unmunge | tail -n1 )\n\
+  if [[ \"\${OUT}\" == \"abc\" ]]; then\n\
+    echo \"Munge check OK\"\n\
+  else\n\
+    echo \"Munge check failed\"\n\
+    exit -1\n\
+  fi\n\
 fi\n\
 CMD=\"ldmsd -F \${OPTS}\"\n\
 echo \"Executing command: \${CMD}\"\n\
@@ -40,5 +55,7 @@ exec \${CMD}\n\
 \n\
 " ; \
 chmod 755 /opt/ovis/sbin/ldmsd.sh ;
+
+RUN dd if=/dev/zero of=/etc/munge/munge.key bs=4096 count=1
 
 ENTRYPOINT [ "ldmsd.sh" ]
