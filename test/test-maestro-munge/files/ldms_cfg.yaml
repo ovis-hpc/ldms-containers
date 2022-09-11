@@ -1,0 +1,80 @@
+daemons:
+  - names : &samp-names "mtest-samp-[1-4]"
+    hosts : &samp-hosts "mtest-samp-[1-4]"
+    endpoints :
+      - names : &samp-eps "mtest-samp-[1-4]-ep"
+        ports : 411
+        xprt : sock
+        maestro_comm : True
+        auth :
+          name : munge
+          plugin : munge
+  - names : &L1-names "mtest-agg-[11-12]"
+    hosts : &L1-hosts "mtest-agg-[11-12]"
+    endpoints :
+      - names : &L1-eps "mtest-agg-[11-12]-ep"
+        ports : 411
+        xprt : sock
+        maestro_comm : True
+        auth :
+          name : munge
+          plugin : munge
+  - names : &L2-name "mtest-agg-2"
+    hosts : &L2-host "mtest-agg-2"
+    endpoints :
+      - names : &L2-ep "mtest-agg-2-ep"
+        ports : 411
+        xprt : sock
+        maestro_comm : True
+        auth :
+          name : munge
+          plugin : munge
+
+aggregators:
+  - daemons   : *L1-names
+    peers     :
+      - daemons   : *samp-names
+        endpoints : *samp-eps
+        reconnect : 1s
+        type      : active
+        updaters  :
+          - mode     : pull
+            interval : "1.0s"
+            offset   : "200ms"
+            sets     :
+              - regex : .*
+                field : inst
+  - daemons : *L2-name
+    peers:
+      - daemons : *L1-names
+        endpoints : *L1-eps
+        reconnect : 1s
+        type      : active
+        updaters  :
+          - mode     : pull
+            interval : "1.0s"
+            offset   : "400ms"
+            sets     :
+              - regex : .*
+                field : inst
+
+samplers:
+  - daemons : *samp-names
+    plugins :
+      - name        : meminfo # Variables can be specific to plugin
+        interval    : "1s" # Used when starting the sampler plugin
+        offset      : "0s"
+        config : &simple_samp_config
+            component_id : "${COMPID}"
+            perm : "0777"
+
+stores:
+  - name      : sos-meminfo
+    daemons   : *L2-name
+    container : cont
+    schema    : meminfo
+    flush     : 10s
+    plugin :
+      name   : store_sos
+      config :
+        path : /store
