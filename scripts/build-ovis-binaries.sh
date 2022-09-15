@@ -161,6 +161,9 @@ git init .
 git remote add origin ${OVIS_REPO}
 git fetch origin ${OVIS_BRANCH}
 git checkout -b build FETCH_HEAD
+git config user.name 'root'
+git config user.email 'root@localhost'
+git fetch -t
 popd # ovis
 
 pushd sos
