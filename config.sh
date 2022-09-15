@@ -21,20 +21,18 @@ OVIS=ovis
 ############################################
 
 # OVIS git repository and branch to check out from
-#OVIS_REPO=https://github.com/ovis-hpc/ovis
-#OVIS_BRANCH=OVIS-4
 OVIS_REPO=https://github.com/ovis-hpc/ovis
-OVIS_BRANCH=70ea2017de535bdb42bce3174c442280183efd08
+OVIS_BRANCH=OVIS-4
 
 # SOS git repository and branch to check out from
 SOS_REPO=https://github.com/ovis-hpc/sos
-SOS_BRANCH=f91f14136c1150311f5a42caa0b60f1a6cbdeb92
+SOS_BRANCH=SOS-6
 
 # Maestro git repository and branch to check out from
 #MAESTRO_REPO=https://github.com/ovis-hpc/maestro
 #MAESTRO_BRANCH=master
 MAESTRO_REPO=https://github.com/ovis-hpc/maestro
-MAESTRO_BRANCH=72e02e2a779060557699e2c50537a3d39c8fbe20
+MAESTRO_BRANCH=master
 
 # The name of the container for building OVIS binaries. This can be anything.
 BUILD_CONT=ldms-cont-ovis-build
