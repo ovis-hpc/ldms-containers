@@ -144,7 +144,7 @@ $ docker run -d --name=<CONTAINER_NAME> --network=host --pid=host --privileged
          [ -v /run/munge:/run/munge:ro ] # expose host's munge to the container
          [ -v /on-host/munge.key:/etc/munge/munge.key:ro ] # use container's munged with custom key
          ovishpc/ldms-samp # the image name
-              -x sock:411  # sock transport, listening on port 411
+              -x <XPRT>:<PORT>  # transport, listening port
               [ -a munge ] # use munge authentication
               [ OTHER LDMSD OPTIONS ]
 
@@ -157,7 +157,7 @@ $ docker run -d --name=<CONTAINER_NAME> --network=host --pid=host --privileged
          [ -v /run/munge:/run/munge:ro ] # expose host's munge to the container
          [ -v /on-host/munge.key:/etc/munge/munge.key:ro ] # use container's munged with custom key
          ovishpc/ldms-samp # the image name
-              -x sock:411  # sock transport, listening on port 411
+              -x <XPRT>:<PORT>  # transport, listening port
               [ -a munge ] # use munge authentication
               [ OTHER LDMSD OPTIONS ]
 # Run dsosd to export SOS data
@@ -287,7 +287,7 @@ $ docker run -d --name=<CONTAINER_NAME> --network=host --pid=host --privileged
          [ -v /run/munge:/run/munge:ro ] # expose host's munge to the container
          [ -v /on-host/munge.key:/etc/munge/munge.key:ro ] # use container's munged with custom key
          ovishpc/ldms-samp # the image name
-              -x sock:411  # sock transport, listening on port 411
+              -x <XPRT>:<PORT>  # transport, listening port
               [ -a munge ] # use munge authentication
               [ OTHER LDMSD OPTIONS ] # e.g. -v INFO
 
@@ -343,7 +343,7 @@ $ docker run -d --name=<CONTAINER_NAME> --network=host --pid=host --privileged
          [ -v /run/munge:/run/munge:ro ] # expose host's munge to the container
          [ -v /on-host/munge.key:/etc/munge/munge.key:ro ] # use container's munged with custom key
          ovishpc/ldms-samp # the image name
-              -x sock:411  # sock transport, listening on port 411
+              -x <XPRT>:<PORT>  # transport, listening port
               [ -a munge ] # use munge authentication
               [ OTHER LDMSD OPTIONS ]
 # dsosd to export SOS data
