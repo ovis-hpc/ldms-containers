@@ -297,10 +297,14 @@ apt-get install -y man-db git build-essential python3-dev python3-pip etcd \
 	flex bison libkrb5-dev libreadline-dev \
 	python3-numpy python3-pandas cython3 pkg-config \
 	libmunge-dev libslurm-dev \
+	slurmd slurmctld \
 	exuberant-ctags \
 	librdmacm-dev \
 	gdb dnsutils iproute2 inetutils-ping \
 	npm \
+	librdkafka-dev \
+	openssh-server \
+	openjdk-11-jdk \
 	; \
 ln -s /usr/bin/cython3 /usr/bin/cython ; \
 apt-get autoremove -y; \
@@ -309,3 +313,14 @@ apt-get clean -y; \
 '
 
 RUN pip3 install protobuf==3.20 etcd3
+
+RUN /bin/bash -c ' \
+pushd /opt/ ;\
+curl -LO https://archive.apache.org/dist/kafka/2.1.0/kafka_2.12-2.1.0.tgz ;\
+tar xzf kafka_2.12-2.1.0.tgz ; \
+mkdir kafka_2.12-2.1.0/logs/ ; \
+'
+
+RUN /bin/bash -c '\
+mkdir -p /run/sshd ; \
+'
