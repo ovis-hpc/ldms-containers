@@ -191,12 +191,13 @@ _INFO "query check RC: $RC"
 # Grafana
 C=mtest-grafana
 docker run -d --name ${C} --hostname ${C} -p 3000:3000 --network test ovishpc/ldms-grafana
-sleep 5
+sleep 30
 
 _INFO "Adding DSOS data source in Grafana"
 curl -H "Content-Type: application/json" \
      -d @${SCRIPT_DIR}/files/dsos_grafana_create.json \
-     http://admin:admin@localhost:3000/api/datasources
+     http://admin:admin@localhost:3000/api/datasources ||
+	_ERROR_EXIT "Failed to add DSOS data source ... exiting"
 sleep 1
 echo
 
