@@ -75,7 +75,11 @@ done
 NAMES=($( cd ${OVIS} ; ls ))
 
 _INFO "Building docker image: ${NAME}"
+CTXT_DIR=${SCRIPT_DIR}/context
+mkdir -p ${CTXT_DIR}
+rm -rf ${CTXT_DIR}/*
 pushd ${OVIS}
-tar c bin sbin lib/lib* lib/python*/site-packages lib/ovis-ldms etc \
-    -C ${SCRIPT_DIR} Dockerfile \
-    | docker build -t ${NAME} -
+tar -c bin sbin lib/lib* lib/python*/site-packages lib/ovis-ldms etc \
+    -C ${SCRIPT_DIR} Dockerfile | tar -C ${CTXT_DIR} -x
+pushd ${CTXT_DIR}
+docker build -t ${NAME} .

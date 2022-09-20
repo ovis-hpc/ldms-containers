@@ -71,7 +71,11 @@ done
 [[ -d "${DSOSDS}" ]] || _ERROR_EXIT "'${DSOSDS}' is not a directory"
 
 echo "Building Docker Image: ${NAME}"
+CTXT_DIR=${SCRIPT_DIR}/context
+mkdir -p ${CTXT_DIR}
+rm -rf ${CTXT_DIR}/*
 pushd ${DSOSDS}
-tar c * \
-    -C ${SCRIPT_DIR} Dockerfile \
-    | docker build -t ${NAME} -
+tar -c * \
+    -C ${SCRIPT_DIR} Dockerfile | tar -C ${CTXT_DIR} -x
+pushd ${CTXT_DIR}
+docker build -t ${NAME} .
