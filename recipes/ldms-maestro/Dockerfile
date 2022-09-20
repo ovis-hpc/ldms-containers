@@ -90,7 +90,7 @@ HOST_MUNGE=\$( mount | grep '\\/run\\/munge' 2>/dev/null || true ) \n\
 if [[ -z \"\${HOST_MUNGE}\" ]] ; then\n\
   mkdir -p /var/run/munge\n\
   chown munge:munge /var/run/munge\n\
-  su -s /bin/bash munge bash -c munged\
+  su -s /bin/bash munge bash -c munged\n\
   sleep 1\n\
 fi\n\
 \n# check munge\n\
