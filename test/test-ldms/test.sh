@@ -32,6 +32,14 @@ _ERROR_EXIT() {
 	exit -1
 }
 
+on_exit() {
+	(( $DEBUG )) || {
+		_INFO "Cleaning up ..."
+		./cleanup.sh
+		_INFO "DONE"
+	}
+}
+trap on_exit EXIT
 
 mkdir -p store
 
@@ -91,9 +99,5 @@ _INFO Checking SOS data
 docker run --rm -i --entrypoint /usr/bin/python3 -v ${PWD}/store:/store:rw \
 	ovishpc/ldms-agg < check.py
 RC=$?
-(( $DEBUG )) || {
-	_INFO Cleaning up ...
-	./cleanup.sh
-	_INFO DONE
-}
 _INFO "check rc: $RC"
+exit $RC

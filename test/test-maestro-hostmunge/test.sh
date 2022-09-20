@@ -131,6 +131,7 @@ docker run --rm -i --entrypoint /usr/bin/python3 -v ${PWD}/store:/store:rw \
 	ovishpc/ldms-agg < check.py
 RC=$?
 _INFO "sos check rc: $RC"
+(( $RC == 0 )) || exit $RC
 
 # start dsosd on mtest-agg-2
 docker cp ${SCRIPT_DIR}/files/dsosd.json mtest-agg-2:/etc/
@@ -183,7 +184,9 @@ docker run --rm -i --entrypoint /usr/bin/python3 \
 	--name mtest-qcheck --hostname mtest-qcheck --network ${NET} \
 	-v ${SCRIPT_DIR}/files/query.json:/query.json \
 	ovishpc/ldms-agg < ${SCRIPT_DIR}/query_check.py
-_INFO "query check RC: $?"
+RC=$?
+_INFO "query check RC: $RC"
+(( $RC == 0 )) || exit $RC
 
 # Grafana
 C=mtest-grafana
@@ -242,6 +245,9 @@ EOF
 
 _INFO "Checking grafana data"
 python3 ${SCRIPT_DIR}/grafana_check.py
-_INFO "Grafana data check, rc: $?"
+RC=$?
+_INFO "Grafana data check, rc: $RC"
+(( $RC == 0 )) || exit $RC
 
+exit 0
 # See `on_exit()` for the exit-cleanup routine
