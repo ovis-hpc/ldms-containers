@@ -324,3 +324,10 @@ mkdir kafka_2.12-2.1.0/logs/ ; \
 RUN /bin/bash -c '\
 mkdir -p /run/sshd ; \
 '
+
+RUN /bin/bash -c '\
+cd /root ; \
+yes "" | ssh-keygen ; \
+cp .ssh/id_rsa.pub .ssh/authorized_keys ; \
+chmod 600 .ssh/authorized_keys ; \
+'
