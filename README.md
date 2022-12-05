@@ -156,7 +156,7 @@ $ docker run -d --name=<CONTAINER_NAME> --network=host --pid=host --privileged
          [ -v /on-host/dsosd.json:/etc/dsosd.json:ro ] # bind dsosd.json configuration, if using dsosd to export SOS data
          [ -v /run/munge:/run/munge:ro ] # expose host's munge to the container
          [ -v /on-host/munge.key:/etc/munge/munge.key:ro ] # use container's munged with custom key
-         ovishpc/ldms-samp # the image name
+         ovishpc/ldms-agg # the image name
               -x <XPRT>:<PORT>  # transport, listening port
               [ -a munge ] # use munge authentication
               [ OTHER LDMSD OPTIONS ]
