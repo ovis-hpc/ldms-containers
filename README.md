@@ -211,72 +211,305 @@ $ docker run -d --name=<CONTAINER_NAME> --network=host --privileged
 
 EXAMPLES
 --------
+In this example, we have 8-nodes cluster with host names cygnus-01 to cygnus-08.
+`cygnus-0[1-4]` are used as compute nodes (deploying `ovishpc/ldms-samp`
+containers). `cygnus-0[5-6]` are used as L1 aggregator (`ovishpc/ldms-agg`
+containers without storage). `cygnus-07` is used as L2 aggregator with a DSOS
+storage (`ovishpc/ldms-agg` with dsosd). `cygnus-07` will also host
+`ovishpc/maestro`, `ovishpc/ldms-ui` and `ovishpc/ldms-grafana` containers.
+We will be running commands from `cygnus-07`. The cluster has `munged`
+pre-configured and running on all nodes with the same key.
+
+Configuration files used in this example are listed at the end of the section.
+The following is a list of commands that deploys various containers on the
+cygnus cluster:
+
 ```sh
-# maestro - a daemon to configure ldmsd's.
-#           run on an any system that can talk to all ldmsd's.
-$ docker run -d --network=host -v /on-host/ldms_cfg.yaml:/etc/ldms_cfg.yaml:rw \
-         ovishpc/ldms-maestro
+# Start sampler containers on cygnus-01,02,03,04
+root@cygnus-07 $ pdsh -w cygnus-0[1-4] 'docker run -d --name=samp --network=host --pid=host --privileged -v /run/munge:/run/munge:ro -e COMPONENT_ID=${HOSTNAME#cygnus-0} ovishpc/ldms-samp -x rdma:411 -a munge'
+# Notice the COMPONENT_ID environment variable setup using Bash substitution.
+#  The COMPONENT_ID environment variable is later used in LDMSD sampler plugin
+#  configuration `component_id: ${COMPONENT_ID}` in the `ldms_cfg.yaml` file.
 
-# maestro, using munge on the host (exposing host's /run/munge to the container)
-$ docker run -d --network=host -v /on-host/ldms_cfg.yaml:/etc/ldms_cfg.yaml:rw \
-         -v /run/munge:/run/munge:ro \
-         ovishpc/ldms-maestro
+# Start L1 aggregator containers on cygnus-05,06
+root@cygnus-07 $ pdsh -w cygnus-0[5-6] docker run -d --name=agg1 --network=host --pid=host  --privileged -v /run/munge:/run/munge:ro ovishpc/ldms-agg -x rdma:411 -a munge
 
-# maestro, with munged in a container + custom munge.key. The munge.key file
-#   must be owned by 101:101 (munge:munge in the container) and has 0600 mode.
-$ docker run -d --network=host -v /on-host/ldms_cfg.yaml:/etc/ldms_cfg.yaml:rw \
-         -v /path/to/munge.key:/etc/munge/munge.key:ro \
-         ovishpc/ldms-maestro
+# Start L2 aggregator container on cygnus-07
+root@cygnus-07 $ docker run -d --name=agg2 --network=host --pid=host --privileged -v /run/munge:/run/munge:ro -v /store:/store:rw ovishpc/ldms-agg -x rdma:411 -a munge
 
-# sampler on compute nodes, listening on port 411, no authentication;
-#   COMPID is HOSTNAME with 'bitzer' prefix removed
-$ docker run -d --name=samp --network=host --pid=host --privileged \
-         -e COMPID=${HOSTNAME#bitzer} \
-         ovishpc/ldms-samp -x sock:411
+# Start dsosd in the `agg2`, our L2 aggregator container
+root@cygnus-07 $ echo 'rpcbind ; dsosd > /var/log/dsosd.log 2>&1 &' | docker exec -i agg2 /bin/bash
 
-# sampler on compute nodes, listening on port 411, with host's munge;
-#   COMPID is HOSTNAME with 'bitzer' prefix removed
-$ docker run -d --name=samp --network=host --pid=host --privileged \
-         -v /run/munge:/run/munge:ro \
-         -e COMPID=${HOSTNAME#bitzer} \
-         ovishpc/ldms-samp -x sock:411 -a munge
+# Start maestro container on cygnus-07
+root@cygnus-07 $ docker run -d --name=maestro --network=host --privileged -v /run/munge:/run/munge:ro -v ${PWD}/ldms_cfg.yaml:/etc/ldms_cfg.yaml:ro ovishpc/ldms-maestro
 
-# sampler on compute nodes, listening on port 411, with munged in the container
-#   and custom munge.key. The munge.key file must be owned by 101:101
-#   (munge:munge in the container) and has 0600 mode.
-#   COMPID is HOSTNAME with 'bitzer' prefix removed.
-$ docker run -d --name=samp --network=host --pid=host --privileged \
-         -v /path/to/munge.key:/etc/munge/munge.key:ro \
-         -e COMPID=${HOSTNAME#bitzer} \
-         ovishpc/ldms-samp -x sock:411 -a munge
+# Start Django UI container
+root@cygnus-07 $ docker run -d --name=ui --network=host --privileged -v ${PWD}/dsosd.conf:/opt/ovis/etc/dsosd.conf -v ${PWD}/settings.py:/opt/ovis/ui/sosgui/settings.py ovishpc/ldms-ui
 
-# aggregator, WITHOUT storage; with munged in the container with default key
-$ docker run -d --name=agg1 --network=host --privileged \
-         ovishpc/ldms-agg -x sock:411 -a munge
-
-# aggregator, WITH storage; with host munge
-$ docker run -d --name=agg2 --network=host --privileged \
-         -v /on-host/dsosd.json:/etc/dsosd.json:rw \
-         -v /on-host/storage:/storage:rw \
-         -v /run/munge:/run/munge:ro \
-         ovishpc/ldms-agg -x sock:411 -a munge
-# export dsosd
-$ docker exec -it agg2 /bin/bash
-(agg2) $ rpcbind
-(agg2) $ export DSOSD_DIRECTORY=/etc/dsosd.json
-(agg2) $ dsosd >/var/log/dsosd.log 2>&1 &
-(agg2) $ exit
-
-# ui back-end, will use port 80
-$ docker run -d --network=host --privileged \
-         -v /on-host/dsosd.conf:/opt/ovis/etc/dsosd.conf \
-         -v /on-host/settings.py:/opt/ovis/ui/sosgui/settings.py \
-         ovishpc/ldms-ui
-
-# grafana, will use port 3000
-$ docker run -d --privileged --network=host ovishpc/ldms-grafana
-
+# Start Grafana container
+root@cygnus-07 $ docker run -d --name=grafana --privileged --network=host ovishpc/ldms-grafana
 ```
+
+
+Related configuration files
+
+```conf
+# dsosd.conf
+cygnus-07
+```
+
+```yaml
+# ldms_cfg.yaml
+xprt: &xprt "rdma"
+daemons:
+  - names : &samp-names "samp-[1-4]"
+    hosts : &samp-hosts "cygnus-0[1-4]-iw"
+    endpoints :
+      - names : &samp-eps "cygnus-0[1-4]-iw-ep"
+        ports : 411
+        xprt : *xprt
+        maestro_comm : True
+        auth :
+          name : munge
+          plugin : munge
+  - names : &L1-names "agg-[11-12]"
+    hosts : &L1-hosts "cygnus-0[5-6]-iw"
+    endpoints :
+      - names : &L1-eps "agg-[11-12]-ep"
+        ports : 411
+        xprt : *xprt
+        maestro_comm : True
+        auth :
+          name : munge
+          plugin : munge
+  - names : &L2-name "agg-2"
+    hosts : &L2-host "cygnus-07-iw"
+    endpoints :
+      - names : &L2-ep "agg-2-ep"
+        ports : 411
+        xprt : *xprt
+        maestro_comm : True
+        auth :
+          name : munge
+          plugin : munge
+
+aggregators:
+  - daemons   : *L1-names
+    peers     :
+      - daemons   : *samp-names
+        endpoints : *samp-eps
+        reconnect : 1s
+        type      : active
+        updaters  :
+          - mode     : pull
+            interval : "1.0s"
+            offset   : "200ms"
+            sets     :
+              - regex : .*
+                field : inst
+  - daemons : *L2-name
+    peers:
+      - daemons : *L1-names
+        endpoints : *L1-eps
+        reconnect : 1s
+        type      : active
+        updaters  :
+          - mode     : pull
+            interval : "1.0s"
+            offset   : "400ms"
+            sets     :
+              - regex : .*
+                field : inst
+
+samplers:
+  - daemons : *samp-names
+    plugins :
+      - name        : meminfo # Variables can be specific to plugin
+        interval    : "1s" # Used when starting the sampler plugin
+        offset      : "0s"
+        config : &simple_samp_config
+            component_id : "${COMPONENT_ID}"
+            perm : "0777"
+
+stores:
+  - name      : sos-meminfo
+    daemons   : *L2-name
+    container : meminfo
+    schema    : meminfo
+    flush     : 10s
+    plugin :
+      name   : store_sos
+      config :
+        path : /store
+```
+
+```py
+# settings.py
+"""
+Django settings for sosgui project.
+
+Generated by 'django-admin startproject' using Django 1.8.2.
+
+For more information on this file, see
+https://docs.djangoproject.com/en/1.8/topics/settings/
+
+For the full list of settings and their values, see
+https://docs.djangoproject.com/en/1.8/ref/settings/
+"""
+
+# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+import os
+import json
+
+log = open('/var/log/sosgui/settings.log', 'a')
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# Quick-start development settings - unsuitable for production
+# See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
+
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = 'blablablablablablablablablablablablablablablablablabla'
+
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = True
+
+ALLOWED_HOSTS = [
+    '*',
+]
+
+APPEND_SLASH = False
+
+STATIC_ROOT = os.path.join(BASE_DIR, "assets")
+
+AUTH_USER_MODEL = 'sosdb_auth.SosdbUser'
+
+# Application definition
+
+INSTALLED_APPS = (
+    'corsheaders',
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'container',
+    'jobs',
+    'objbrowser',
+    'sos_db',
+    'sosdb_auth',
+)
+
+try:
+    from . import ldms_settings
+    INSTALLED_APPS = INSTALLED_APPS + ldms_settings.INSTALLED_APPS
+except:
+    pass
+
+try:
+    from . import grafana_settings
+    INSTALLED_APPS = INSTALLED_APPS + grafana_settings.INSTALLED_APPS
+except:
+    pass
+
+try:
+    from . import baler_settings
+    INSTALLED_APPS = INSTALLED_APPS + baler_settings.INSTALLED_APPS
+except:
+    pass
+
+MIDDLEWARE = (
+    'corsheaders.middleware.CorsMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.security.SecurityMiddleware',
+)
+
+ROOT_URLCONF = 'sosgui.urls'
+
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [
+            '/opt/ovis/ui/templates',
+        ],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.contrib.auth.context_processors.auth',
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    },
+]
+
+WSGI_APPLICATION = 'sosgui.wsgi.application'
+
+
+# Database
+# https://docs.djangoproject.com/en/1.8/ref/settings/#databases
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    }
+}
+
+LANGUAGE_CODE = 'en-us'
+
+TIME_ZONE = 'UTC'
+
+USE_I18N = True
+
+USE_L10N = True
+
+USE_TZ = True
+
+
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/1.8/howto/static-files/
+
+STATIC_URL = '/static/'
+
+STATICFILES_DIRS = [
+    '/opt/ovis/ui/static/',
+]
+
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+SOS_ROOT = "/store/"
+DSOS_ROOT = "/store/"
+DSOS_CONF = "/opt/ovis/etc/dsosd.conf"
+LOG_FILE = "/var/log/sosgui/sosgui.log"
+LOG_DATE_FMT = "%F %T"
+ODS_LOG_FILE = "/var/log/sosgui/ods.log"
+ODS_LOG_MASK = "255"
+ODS_GC_TIMEOUT = 10
+BSTORE_PLUGIN="bstore_sos"
+os.environ.setdefault("BSTORE_PLUGIN_PATH", "/opt/ovis/lib64")
+os.environ.setdefault("SET_POS_KEEP_TIME", "3600")
+
+
+try:
+    import ldms_cfg
+    LDMS_CFG = ldms_cfg.aggregators
+except Exception as e:
+    log.write(repr(e)+'\n')
+    LDMS_CFG = { "aggregators" : [] }
+
+try:
+    import syslog
+    SYSLOG_CFG = syslog.syslog
+except Exception as e:
+    log.write('SYSLOG_SETTINGS ERR '+repr(e)+'\n')
+    SYSLOG_CFG = { "stores" : [] }
+```
+
 
 LDMS Sampler Container
 ----------------------
