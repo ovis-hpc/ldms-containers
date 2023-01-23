@@ -43,6 +43,9 @@ BUILD_IMG=ovishpc/ldms-dev
 # OVIS prefix INSIDE the container. Please do not change this.
 PREFIX=/opt/ovis
 
+#MAKE_INSTALL="make install-strip"
+MAKE_INSTALL="make install"
+
 # configure OPTIONS for SOS other than --prefix (*** This is a bash array ***)
 SOS_OPTIONS=(
 	CFLAGS=\"-O2\"

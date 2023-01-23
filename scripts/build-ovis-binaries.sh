@@ -159,16 +159,17 @@ mkdir -p ovis sos maestro
 pushd ovis
 git init .
 git remote add origin ${OVIS_REPO}
+git fetch origin --tags
 git fetch origin ${OVIS_BRANCH}
 git checkout -b build FETCH_HEAD
 git config user.name 'root'
 git config user.email 'root@localhost'
-git fetch -t
 popd # ovis
 
 pushd sos
 git init .
 git remote add origin ${SOS_REPO}
+git fetch origin --tags
 git fetch origin ${SOS_BRANCH}
 git checkout -b build FETCH_HEAD
 popd # sos
@@ -176,6 +177,7 @@ popd # sos
 pushd maestro
 git init .
 git remote add origin ${MAESTRO_REPO}
+git fetch origin --tags
 git fetch origin ${MAESTRO_BRANCH}
 git checkout -b build FETCH_HEAD
 popd # maestro
@@ -199,7 +201,7 @@ mkdir build
 pushd build
 ../configure --prefix ${PREFIX} ${SOS_OPTIONS[@]}
 make
-make install-strip
+${MAKE_INSTALL:-make install}
 popd # build
 popd # sos
 echo "-------------------------------------------------------------------------"
@@ -211,7 +213,7 @@ mkdir build
 pushd build
 ../configure --prefix ${PREFIX} ${OVIS_OPTIONS[@]}
 make
-make install-strip
+${MAKE_INSTALL:-make install}
 popd # build
 popd # ovis
 echo "-------------------------------------------------------------------------"
