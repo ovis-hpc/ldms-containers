@@ -88,8 +88,10 @@ OVIS_OPTIONS=(
 
 # ---- UI components ---- #
 PREFIX_UI=${PREFIX}/ui
-NUMSOS_REPO=https://github.com/nick-enoent/numsos
-NUMSOS_BRANCH=b9d1742fe769c49216efa8c35624123e5b995926
+#NUMSOS_REPO=https://github.com/nick-enoent/numsos
+#NUMSOS_BRANCH=b9d1742fe769c49216efa8c35624123e5b995926
+NUMSOS_REPO=https://github.com/narategithub/numsos
+NUMSOS_BRANCH=edd4522f5c63f65f0d36dd6a87299561fafc85ff
 NUMSOS_OPTIONS=()
 
 SOSDBUI_REPO=https://github.com/nick-enoent/sosdb-ui
@@ -98,6 +100,7 @@ SOSDBUI_OPTIONS=()
 
 SOSDBGRAFANA_REPO=https://github.com/nick-enoent/sosdb-grafana
 SOSDBGRAFANA_BRANCH=e5eb5347f3864e2e3447e996cdbe28b8e74b2bb6
+#SOSDBGRAFANA_BRANCH=72f25ad0f2ca98eccb00e5599b8cf669a38276fc
 SOSDBGRAFANA_OPTIONS=()
 
 #####################################
@@ -105,7 +108,9 @@ SOSDBGRAFANA_OPTIONS=()
 #####################################
 # ---- dsos data source grafana plugin ---- #
 DSOSDS=dsosds # the dsosds build dir relative to the top dir
-DSOSDS_REPO=https://github.com/narategithub/dsosds
-DSOSDS_BRANCH=1910e9a6d832b2114ab4421bbb61ea4de95b004d
+#DSOSDS_REPO=https://github.com/narategithub/dsosds
+DSOSDS_REPO=https://github.com/nick-enoent/dsosds
+#DSOSDS_BRANCH=1910e9a6d832b2114ab4421bbb61ea4de95b004d
+DSOSDS_BRANCH=master
 DSOSDS_BUILD_CONT=dsosds-build
 DSOSDS_BUILD_IMG=ovishpc/ldms-dev
