@@ -305,6 +305,8 @@ apt-get install -y man-db git build-essential python3-dev python3-pip etcd \
 	librdkafka-dev \
 	openssh-server \
 	openjdk-11-jdk \
+	avro-bin libavro-dev python3-avro \
+	libjansson-dev \
 	; \
 ln -s /usr/bin/cython3 /usr/bin/cython ; \
 apt-get autoremove -y; \
@@ -331,3 +333,15 @@ yes "" | ssh-keygen ; \
 cp .ssh/id_rsa.pub .ssh/authorized_keys ; \
 chmod 600 .ssh/authorized_keys ; \
 '
+
+RUN /bin/bash -c '\
+set -e ;\
+cd /root ;\
+git clone https://github.com/confluentinc/libserdes -b v7.3.2 ;\
+cd libserdes ;\
+./configure ;\
+make ;\
+make install ;\
+'
+
+RUN /usr/sbin/ldconfig
