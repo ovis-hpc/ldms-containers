@@ -17,7 +17,7 @@ ${SDIR}/scripts/build-ovis-binaries.sh
 echo "==== build dsosds ===="
 ${SDIR}/scripts/build-dsosds.sh
 
-for X in ldms-{samp,agg,maestro,ui,grafana} ; do
+for X in ldms-{samp,agg,storage,maestro,ui,grafana} ; do
 	echo "==== $X ===="
 	${SDIR}/recipes/${X}/docker-build.sh
 done
