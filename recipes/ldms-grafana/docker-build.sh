@@ -70,6 +70,7 @@ done
 			"Please build it with 'scripts/build-dsosds.sh'"
 [[ -d "${DSOSDS}" ]] || _ERROR_EXIT "'${DSOSDS}' is not a directory"
 
+[[ -z "${BUILD_TAG}" ]] || NAME="${NAME}:${BUILD_TAG}"
 echo "Building Docker Image: ${NAME}"
 CTXT_DIR=${SCRIPT_DIR}/context
 mkdir -p ${CTXT_DIR}

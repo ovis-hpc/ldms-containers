@@ -80,6 +80,7 @@ LDMS_LIBS=($(
 	cd ${OVIS} ; ls lib/ovis-ldms/* | grep -Ev 'libstore'
 ))
 
+[[ -z "${BUILD_TAG}" ]] || NAME="${NAME}:${BUILD_TAG}"
 _INFO "Building docker image: ${NAME}"
 CTXT_DIR=${SCRIPT_DIR}/context
 mkdir -p ${CTXT_DIR}

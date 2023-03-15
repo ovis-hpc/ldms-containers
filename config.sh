@@ -15,6 +15,17 @@
 # Path to ovis binaries (built by or to be built by
 # `scripts/build-ovis-binaries.sh`)
 OVIS=ovis
+ARCH=$(uname -m)
+# translate Linux arch into docker-world arch
+case "${ARCH}" in
+	x86_64 )
+		ARCH=amd64
+		;;
+	aarch64 )
+		ARCH=arm64
+		;;
+esac
+BUILD_TAG=latest-${ARCH}
 
 ############################################
 # ---- scripts/build-ovis-binaries.sh ---- #
