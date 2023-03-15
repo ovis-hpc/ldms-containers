@@ -26,6 +26,7 @@ case "${ARCH}" in
 		;;
 esac
 BUILD_TAG=latest-${ARCH}
+MANIFEST_TAG=latest
 
 ############################################
 # ---- scripts/build-ovis-binaries.sh ---- #
