@@ -25,8 +25,8 @@ case "${ARCH}" in
 		ARCH=arm64
 		;;
 esac
-BUILD_TAG=latest-${ARCH}
-MANIFEST_TAG=latest
+BUILD_TAG=4.3.11-${ARCH}
+MANIFEST_TAG=4.3.11
 
 ############################################
 # ---- scripts/build-ovis-binaries.sh ---- #
@@ -34,17 +34,19 @@ MANIFEST_TAG=latest
 
 # OVIS git repository and branch to check out from
 OVIS_REPO=https://github.com/ovis-hpc/ovis
-OVIS_BRANCH=OVIS-4
+OVIS_BRANCH=OVIS-4.3.11
 
 # SOS git repository and branch to check out from
 SOS_REPO=https://github.com/ovis-hpc/sos
-SOS_BRANCH=SOS-6
+# This was the top of sos/SOS-6
+SOS_BRANCH=929fcc858bec6e263b2f91ff357d554ffb51f968
 
 # Maestro git repository and branch to check out from
 #MAESTRO_REPO=https://github.com/ovis-hpc/maestro
 #MAESTRO_BRANCH=master
 MAESTRO_REPO=https://github.com/ovis-hpc/maestro
-MAESTRO_BRANCH=master
+# This was the top of maestro/master
+MAESTRO_BRANCH=e009d4551aa86070bb1ea41daaa987b8af39fb53
 
 # The name of the container for building OVIS binaries. This can be anything.
 BUILD_CONT=ldms-cont-ovis-build
@@ -123,6 +125,13 @@ DSOSDS=dsosds # the dsosds build dir relative to the top dir
 #DSOSDS_REPO=https://github.com/narategithub/dsosds
 DSOSDS_REPO=https://github.com/nick-enoent/dsosds
 #DSOSDS_BRANCH=1910e9a6d832b2114ab4421bbb61ea4de95b004d
-DSOSDS_BRANCH=master
+DSOSDS_BRANCH=7cb80504974a258bcec2752755fe081d36932182
 DSOSDS_BUILD_CONT=dsosds-build
 DSOSDS_BUILD_IMG=ovishpc/ldms-dev
+
+#
+if [[ -f passphrase.sh ]]; then
+	# This shall contain DOCKER_CONTENT_TRUST_REPOSITORY_PASSPHRASE env var
+	source passphrase.sh
+	export DOCKER_CONTENT_TRUST_REPOSITORY_PASSPHRASE
+fi
