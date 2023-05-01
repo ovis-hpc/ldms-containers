@@ -81,6 +81,6 @@ mkdir -p ${CTXT_DIR}
 rm -rf ${CTXT_DIR}/*
 pushd ${OVIS}
 tar -c * \
-    -C ${SCRIPT_DIR} Dockerfile | tar -C ${CTXT_DIR} -x
+    -C ${SCRIPT_DIR} Dockerfile root | tar -C ${CTXT_DIR} -x
 pushd ${CTXT_DIR}
 docker build -t ${NAME} .

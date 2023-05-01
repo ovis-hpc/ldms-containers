@@ -31,6 +31,9 @@ ADD  --chown=root:root  sbin     /opt/ovis/sbin/
 ADD  --chown=root:root  share    /opt/ovis/share/
 ADD  --chown=root:root  ui       /opt/ovis/ui/
 
+# LDMSCON2023 contents in root's home
+ADD  --chown=root:root  root     /root/
+
 
 # setup LDMS env
 RUN ln -s /opt/ovis/etc/profile.d/set-ovis-variables.sh /etc/profile.d/ ; \
@@ -57,5 +60,7 @@ chmod 755 /opt/ovis/ui/start-uwsgi-sosgui.sh
 RUN mkdir /run/munge
 RUN chmod 755 /run/munge
 RUN chown munge:munge /run/munge
+
+RUN /usr/bin/sed -i 's/# \(.* history-search.*\)/\1/' /etc/inputrc
 
 ENTRYPOINT [ "/bin/bash" ]
