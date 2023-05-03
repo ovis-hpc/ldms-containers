@@ -74,5 +74,6 @@ BUILD_TAG=${BUILD_TAG:?BUILD_TAG variable is not set}
 
 for X in ovishpc/ldms-{samp,agg,maestro,ui,grafana,storage} ; do
 	docker push ${X}:${BUILD_TAG}
+	docker trust revoke ${X}:${BUILD_TAG}
 	docker trust sign ${X}:${BUILD_TAG}
 done
