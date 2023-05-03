@@ -118,6 +118,7 @@ for X in ovishpc/ldms-{samp,agg,maestro,ui,grafana,storage} ; do
 	docker pull ${M}-amd64
 	docker pull ${M}-arm64
 	set -x
+	docker manifest rm ${M}
 	docker manifest create ${M} -a ${M}-amd64 -a ${M}-arm64
 	docker manifest push ${M}
 	set +x
