@@ -2,22 +2,38 @@
 #
 # ldmscon2023-cont-cluster.sh
 #
-#
 
 USAGE=$( cat <<EOF
 Synopsis:
   $(basename $0) create|run|start|stop|rm CLUSTER_NAME
         [ -n,--num NUMBER_OF_NODES ] [ -v,--volume SRC:DST:MODE ]
         [ --sshd|--no-sshd ] [ --assets-dir ASSETS_DIR ]
-	[ --image IMAGE ]
+	[ --sshd-addr SSHD_ADDR ] [ --image IMAGE ]
 
 Descriptions:
   This is a script to manage cluster of containers in a single docker node -- to
-  emulate N-node cluster.o
+  emulate N-node cluster.
 
   'create' command creates the container cluster by 1) creates docker network of
   the name <CLUSTER_NAME> and 2) creates <NUMBER_OF_NODES> containers and add
-  them into <CLUSTER_NAME> docker network.
+  them into <CLUSTER_NAME> docker network. The options that apply on 'create'
+  are described as follows:
+
+    -n,--num NUMBER_OF_NODES
+        The number of nodes.
+
+    -v,--volume SRC:DST:MODE
+        The volume option for 'docker create'
+
+    --sshd,--no-sshd
+        Enable or disable sshd usage.
+
+    --asset-dir ASSET_DIR
+        A directory that holds data (assets) for the docker cluster.
+
+    --sshd-addr SSHD_ADDR
+	Host's IP Address to expose sshd (port 22) in the last container to the
+	host network (the last container being the head node of the cluster).
 
   'start' command starts the containers in the cluster.
 
@@ -70,6 +86,7 @@ SSHD=1
 CLUSTER=
 IMAGE=ovishpc/ldmscon2023
 SSHD_DIR=
+SSHD_ADDR=
 
 opt2var() {
 	local V=$1
@@ -128,6 +145,10 @@ while (($#)); do
 	--no-sshd)
 		SSHD=
 		;;
+	--sshd-addr)
+		handle_opt --sshd-addr $2
+		shift
+		;;
 	-h|-?|--help)
 		cat <<<"$USAGE"
 		exit 0
@@ -168,11 +189,16 @@ do_create() {
 	_INFO "Creating containers ..."
 	for ((I=1; I<=NUM; I++)); do
 		NAME=${CLUSTER}-${I}
+		PUBLISH=
+		if (( I == NUM )) && [[ -n "${SSHD_ADDR}" ]]; then
+			PUBLISH=( -p ${SSHD_ADDR}:22:22 )
+		fi
 		# Create container if not existed
 		[[ -n "${NODES[${NAME}]}" ]] || \
 			docker create -it --name ${NAME} --hostname ${NAME} \
 					-u root --net ${CLUSTER} \
 					"${VOLUMES[@]}" \
+					${PUBLISH[@]} \
 					${IMAGE}
 	done
 	get_nodes # update node list
