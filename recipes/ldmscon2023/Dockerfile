@@ -13,6 +13,7 @@ RUN export DEBIAN_FRONTEND=noninteractive ; \
 		       uwsgi uwsgi-plugin-python3 \
 		       python3-django python3-django-cors-headers \
 		       python3 python3-pip python3-yaml etcd \
+		       pdsh \
                        ; \
     apt-get autoremove -y ; \
     apt-get clean -y ;
@@ -62,5 +63,9 @@ RUN chmod 755 /run/munge
 RUN chown munge:munge /run/munge
 
 RUN /usr/bin/sed -i 's/# \(.* history-search.*\)/\1/' /etc/inputrc
+
+RUN echo > /etc/profile.d/pdsh.sh -e "#!/bin/bash\n\
+export PDSH_RCMD_TYPE=ssh\n\
+" ; \
 
 ENTRYPOINT [ "/bin/bash" ]
