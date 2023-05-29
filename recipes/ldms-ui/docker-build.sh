@@ -14,6 +14,7 @@ SCRIPT_DIR=${PWD}
 # Work from the top src dir
 cd ${SCRIPT_DIR}/../../
 NAME=ovishpc/ldms-ui
+ALIAS=ovishpc/ldms-web-svc
 source config.sh
 
 if [[ -t 1 ]]; then
@@ -75,6 +76,7 @@ done
 NAMES=($( cd ${OVIS} ; ls ))
 
 [[ -z "${BUILD_TAG}" ]] || NAME="${NAME}:${BUILD_TAG}"
+[[ -z "${BUILD_TAG}" ]] || ALIAS="${ALIAS}:${BUILD_TAG}"
 _INFO "Building docker image: ${NAME}"
 CTXT_DIR=${SCRIPT_DIR}/context
 mkdir -p ${CTXT_DIR}
@@ -83,4 +85,5 @@ pushd ${OVIS}
 tar -c bin sbin lib/lib* lib/python*/site-packages lib/ovis-ldms etc ui \
     -C ${SCRIPT_DIR} Dockerfile | tar -C ${CTXT_DIR} -x
 pushd ${CTXT_DIR}
-docker build -t ${NAME} .
+docker build -t ${NAME} . && \
+	docker tag ${NAME} ${ALIAS}

@@ -112,7 +112,7 @@ done
 
 MANIFEST_TAG=${MANIFEST_TAG:-latest}
 
-for X in ovishpc/ldms-{samp,agg,maestro,ui,grafana,storage} ; do
+for X in ovishpc/ldms-{samp,agg,maestro,ui,web-svc,grafana,storage} ; do
 	M=${X}:${MANIFEST_TAG}
 	_INFO "==== ${M} ===="
 	docker pull ${M}-amd64
