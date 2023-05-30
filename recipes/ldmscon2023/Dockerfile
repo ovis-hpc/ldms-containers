@@ -66,6 +66,6 @@ RUN /usr/bin/sed -i 's/# \(.* history-search.*\)/\1/' /etc/inputrc
 
 RUN echo > /etc/profile.d/pdsh.sh -e "#!/bin/bash\n\
 export PDSH_RCMD_TYPE=ssh\n\
-" ; \
+" ;
 
 ENTRYPOINT [ "/bin/bash" ]
