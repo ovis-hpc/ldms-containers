@@ -299,6 +299,18 @@ do_sshd_start() {
 	_INFO "Starting sshd"
 	set -e
 	for NAME in ${!NODES[@]}; do
+		{ cat <<-EOF
+		sudo -u munge munged
+		touch /var/run/utmp
+		cd /etc/ssh/sshd_config.d/
+		LIST=( HOSTNAME PATH PYTHONPATH ZAP_LIBPATH
+			LDMSD_PLUGIN_LIBPATH LDMS_AUTH_FILE )
+		echo -n SetEnv > env.conf
+		for X in \${LIST[*]}; do
+			echo -n " \\"\${X}=\${!X}\\"" >> env.conf
+		done
+		EOF
+		} | docker exec -i ${NAME} bash -l
 		docker exec ${NAME} /usr/sbin/sshd
 	done
 	set +e
