@@ -68,4 +68,8 @@ RUN echo > /etc/profile.d/pdsh.sh -e "#!/bin/bash\n\
 export PDSH_RCMD_TYPE=ssh\n\
 " ;
 
+RUN echo >> /etc/profile.d/set-ovis-variables.sh -e "\
+_add PYTHONPATH /opt/ovis/lib/python3.10/dist-packages\n\
+"
+
 ENTRYPOINT [ "/bin/bash" ]
