@@ -25,8 +25,16 @@ case "${ARCH}" in
 		ARCH=arm64
 		;;
 esac
-BUILD_TAG=4.3.11-${ARCH}
-MANIFEST_TAG=4.3.11
+BUILD_TAG=custom-${ARCH}
+MANIFEST_TAG=latest
+MANIFEST_IMAGES=(
+	ovishpc/ldms-{samp,agg}
+	# ovishpc/ldms-dev
+	# ovishpc/ldms-maestro
+	# ovishpc/ldms-{web-svc,grafana}
+	# ovishpc/ldms-storage
+)
+MANIFEST_ARCHS=( arm64 amd64 ppc64le )
 
 ############################################
 # ---- scripts/build-ovis-binaries.sh ---- #
@@ -62,7 +70,7 @@ MAKE_INSTALL="make install"
 
 # configure OPTIONS for SOS other than --prefix (*** This is a bash array ***)
 SOS_OPTIONS=(
-	CFLAGS=\"-O2\"
+	CFLAGS=\"-O0 -ggdb3\"
 )
 
 # configure OPTIONS for OVIS other than --prefix (*** This is a bash array ***)
@@ -97,7 +105,7 @@ OVIS_OPTIONS=(
 	--enable-app-sampler
 	--enable-papi
 
-	CFLAGS=\"-O2\"
+	CFLAGS=\"-O0 -ggdb3\"
 )
 
 # ---- UI components ---- #

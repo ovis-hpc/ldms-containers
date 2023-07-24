@@ -112,14 +112,17 @@ done
 
 MANIFEST_TAG=${MANIFEST_TAG:-latest}
 
-for X in ovishpc/ldms-{samp,agg,maestro,ui,web-svc,grafana,storage} ; do
+for X in ${MANIFEST_IMAGES[*]} ; do
 	M=${X}:${MANIFEST_TAG}
 	_INFO "==== ${M} ===="
-	docker pull ${M}-amd64
-	docker pull ${M}-arm64
+	for A in ${MANIFEST_ARCHS[*]}; do
+		docker pull ${M}-${A}
+	done
 	set -x
-	docker manifest rm ${M}
-	docker manifest create ${M} -a ${M}-amd64 -a ${M}-arm64
+	docker manifest rm ${M} || true
+	OPT="-a ${M}"
+	# echo docker manifest create ${M} ${MANIFEST_ARCHS[*]/#/${OPT}-}
+	docker manifest create ${M} ${MANIFEST_ARCHS[*]/#/${OPT}-}
 	docker manifest push ${M}
 	set +x
 done
