@@ -4,6 +4,12 @@
 D=$(dirname $0)
 cd $D
 SCRIPT_DIR=${PWD}
+TOP_DIR=${SCRIPT_DIR}/../../
+
+. ${TOP_DIR}/config.sh
+
+export BUILD_TAG
+
 DEBUG=
 
 if [[ -t 1 ]]; then
@@ -42,6 +48,11 @@ on_exit() {
 trap on_exit EXIT
 
 mkdir -p store
+
+docker network ls |& grep 'test\s\+overlay\s\+swarm' >/dev/null || {
+	docker network create --attachable -d overlay test || \
+		_ERROR_EXIT "Cannot create docker network 'test'"
+}
 
 wait_running() {
 	local CONT=$1
@@ -97,7 +108,7 @@ sleep 10
 # Checking data
 _INFO Checking SOS data
 docker run --rm -i --entrypoint /usr/bin/python3 -v ${PWD}/store:/store:rw \
-	ovishpc/ldms-agg < check.py
+	ovishpc/ldms-agg:${BUILD_TAG} < check.py
 RC=$?
 _INFO "check rc: $RC"
 exit $RC

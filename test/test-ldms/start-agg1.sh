@@ -9,7 +9,7 @@
 NAME=${1:-agg1}
 shift
 PRDCRS=( "$@" )
-IMG=ovishpc/ldms-agg
+IMG=ovishpc/ldms-agg:${BUILD_TAG}
 NET=test
 XPRT=sock
 PORT=411

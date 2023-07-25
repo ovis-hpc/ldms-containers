@@ -4,7 +4,7 @@
 # various containers on a single machine.
 
 NAME=${1:-samp}
-IMG=ovishpc/ldms-samp
+IMG=ovishpc/ldms-samp:${BUILD_TAG}
 NET=test
 COMPID=${NAME//[^0-9]/}
 
