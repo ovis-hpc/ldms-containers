@@ -4,6 +4,12 @@
 D=$(dirname $0)
 cd $D
 SCRIPT_DIR=${PWD}
+TOP_DIR=${SCRIPT_DIR}/../../
+
+. ${TOP_DIR}/config.sh
+
+export BUILD_TAG
+
 DEBUG=
 
 if [[ -t 1 ]]; then
@@ -34,6 +40,11 @@ _ERROR_EXIT() {
 
 
 mkdir -p store
+
+docker network ls |& grep 'test\s\+overlay\s\+swarm' >/dev/null || {
+	docker network create --attachable -d overlay test || \
+		_ERROR_EXIT "Cannot create docker network 'test'"
+}
 
 wait_running() {
 	local CONT=$1
@@ -70,7 +81,7 @@ TXT=$( echo abc | munge | unmunge | tail -n1 )
 if [[ "${TXT}" == "abc" ]] ; then
 	_INFO "munge encode/decode successfully"
 else
-	__ERROR_EXIT "munge encode/decode failed, please check if munged is running"
+	_ERROR_EXIT "munge encode/decode failed, please check if munged is running"
 fi
 
 # Maestro
@@ -79,7 +90,7 @@ _INFO starting $C
 docker run -d --name ${C} --hostname ${C} --network ${NET} \
 	-v /run/munge:/run/munge:ro \
 	-v ${PWD}/files/ldms_cfg.yaml:/etc/ldms_cfg.yaml:rw \
-	ovishpc/ldms-maestro
+	ovishpc/ldms-maestro:${BUILD_TAG}
 
 # Samplers
 for C in mtest-samp-{1..4}; do
@@ -88,7 +99,7 @@ for C in mtest-samp-{1..4}; do
 	docker run -d --name ${C} --hostname ${C} --network ${NET} \
 		-v /run/munge:/run/munge:ro \
 		-e COMPID=${COMPID} \
-		ovishpc/ldms-samp -x sock:411 -a munge
+		ovishpc/ldms-samp:${BUILD_TAG} -x sock:411 -a munge
 done
 
 for C in mtest-samp-{1..4}; do
@@ -101,7 +112,7 @@ for C in mtest-agg-{11,12}; do
 	_INFO starting $C
 	docker run -d --name ${C} --hostname ${C} --network ${NET} \
 		-v /run/munge:/run/munge:ro \
-		ovishpc/ldms-agg -x sock:411 -a munge
+		ovishpc/ldms-agg:${BUILD_TAG} -x sock:411 -a munge
 done
 
 for C in mtest-agg-{11,12}; do
@@ -114,7 +125,7 @@ C=mtest-agg-2
 _INFO starting ${C}
 docker run -d --name ${C} --hostname ${C} --network ${NET}  \
 	   -v /run/munge:/run/munge:ro \
-	   -v ${PWD}/store:/store:rw ovishpc/ldms-agg -x sock:411 -a munge
+	   -v ${PWD}/store:/store:rw ovishpc/ldms-agg:${BUILD_TAG} -x sock:411 -a munge
 wait_running ${C} || _ERROR_EXIT "${C} is not running"
 _INFO "${C} is running"
 
@@ -128,7 +139,7 @@ docker kill mtest-agg-{11,12}
 # Checking data
 _INFO Checking SOS data
 docker run --rm -i --entrypoint /usr/bin/python3 -v ${PWD}/store:/store:rw \
-	ovishpc/ldms-agg < check.py
+	ovishpc/ldms-agg:${BUILD_TAG} < check.py
 RC=$?
 _INFO "sos check rc: $RC"
 (( $RC == 0 )) || exit $RC
@@ -149,7 +160,7 @@ _INFO "starting ${C}"
 docker run -d --name ${C} --hostname ${C} --network ${NET} \
 	   -v ${SCRIPT_DIR}/files/dsosd.conf:/opt/ovis/etc/dsosd.conf \
 	   -v ${SCRIPT_DIR}/files/settings.py:/opt/ovis/ui/sosgui/settings.py \
-	   ovishpc/ldms-ui
+	   ovishpc/ldms-ui:${BUILD_TAG}
 wait_running ${C} || _ERROR_EXIT "${C} is not running"
 T0=$(($(date +%s) - 24*3600))
 T1=$(( T0 + 48*3600 ))
@@ -183,14 +194,14 @@ _INFO "Checking query from mtest-ui: ${URL}"
 docker run --rm -i --entrypoint /usr/bin/python3 \
 	--name mtest-qcheck --hostname mtest-qcheck --network ${NET} \
 	-v ${SCRIPT_DIR}/files/query.json:/query.json \
-	ovishpc/ldms-agg < ${SCRIPT_DIR}/query_check.py
+	ovishpc/ldms-agg:${BUILD_TAG} < ${SCRIPT_DIR}/query_check.py
 RC=$?
 _INFO "query check RC: $RC"
 (( $RC == 0 )) || exit $RC
 
 # Grafana
 C=mtest-grafana
-docker run -d --name ${C} --hostname ${C} -p 3000:3000 --network test ovishpc/ldms-grafana
+docker run -d --name ${C} --hostname ${C} -p 3000:3000 --network test ovishpc/ldms-grafana:${BUILD_TAG}
 sleep 30
 
 _INFO "Adding DSOS data source in Grafana"
