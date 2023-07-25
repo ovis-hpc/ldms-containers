@@ -117,7 +117,7 @@ _INFO "${C} is running"
 
 _INFO "Collecting data (into SOS)"
 # collect some data
-sleep 10
+sleep 120
 
 # Stop updater on L1 daemons to stop data collection
 docker kill mtest-agg-{11,12}
