@@ -12,6 +12,7 @@ RUN export DEBIAN_FRONTEND=noninteractive ; \
     apt-get install -y librdmacm1 libibverbs1 libpapi6.0 libpfm4 munge \
                        python3 python3-numpy python3-pandas \
 		       rpcbind curl \
+		       libjansson4 \
                        ; \
     apt-get autoremove -y ; \
     apt-get clean -y ;

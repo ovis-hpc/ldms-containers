@@ -13,6 +13,7 @@ RUN export DEBIAN_FRONTEND=noninteractive ; \
                        python3 python3-numpy python3-pandas \
 		       uwsgi uwsgi-plugin-python3 \
 		       python3-django python3-django-cors-headers \
+		       libjansson4 \
                        ; \
     apt-get autoremove -y ; \
     apt-get clean -y ;
