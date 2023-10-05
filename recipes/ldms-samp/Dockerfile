@@ -28,7 +28,7 @@ ENV PYTHONPATH=/opt/ovis/lib/python3.10/site-packages:/opt/ovis/lib/python3.10/d
 ENV LDMSD_PLUGIN_LIBPATH=/opt/ovis/lib/ovis-ldms
 ENV ZAP_LIBPATH=/opt/ovis/lib/ovis-ldms
 
-RUN echo > /opt/ovis/sbin/ldmsd.sh -e "#!/bin/bash\n\
+RUN /bin/echo > /opt/ovis/sbin/ldmsd.sh -e "#!/bin/bash\n\
 \n# Add '-x sock:411' to the CLI argument -x has not been specified.\n\
 OPTS=\"\$*\"\n\
 if [[ \" \${OPTS} \" == *\\ munge\\ * ]]; then\
