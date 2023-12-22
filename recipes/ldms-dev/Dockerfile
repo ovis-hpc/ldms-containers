@@ -344,4 +344,6 @@ make ;\
 make install ;\
 '
 
+RUN pip3 install confluent_kafka==2.3.0 fastavro==1.9.2
+
 RUN /usr/sbin/ldconfig
