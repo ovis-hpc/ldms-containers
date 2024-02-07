@@ -307,6 +307,7 @@ apt-get install -y man-db git build-essential python3-dev python3-pip etcd \
 	openjdk-11-jdk \
 	avro-bin libavro-dev python3-avro \
 	libjansson-dev \
+	python3-flask python3-gevent \
 	; \
 ln -s /usr/bin/cython3 /usr/bin/cython ; \
 apt-get autoremove -y; \
