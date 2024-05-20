@@ -7,8 +7,11 @@ NAME=${1:-samp}
 IMG=ovishpc/ldms-samp:${BUILD_TAG}
 NET=test
 COMPID=${NAME//[^0-9]/}
+D=$(realpath $(dirname $0))
 
-docker run -d --name ${NAME} --hostname ${NAME} --network ${NET} ${IMG} -x sock:411
+docker run -d --name ${NAME} --hostname ${NAME} --network ${NET} \
+	-v ${D}/munge.key:/etc/munge/munge.key:rw \
+	${IMG} -x sock:411 -a munge
 
 # Limited wait for State.Running == true
 for ((I=0; I<5; I++)); do
@@ -22,6 +25,8 @@ if [[ "$STATE" != "true" ]]; then
 	exit -1
 fi
 
+sleep 1
+
 # Configure the daemon
 { cat <<EOF
 load name=meminfo
@@ -30,4 +35,4 @@ start name=meminfo interval=1000000 offset=0
 EOF
 } | docker exec -i ${NAME} ldmsd_controller --xprt sock \
 					    --host localhost \
-					    --port 411
+					    --port 411 --auth munge

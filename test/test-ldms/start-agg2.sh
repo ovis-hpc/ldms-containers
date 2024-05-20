@@ -8,6 +8,7 @@
 
 D=$(dirname $0)
 cd $D
+D=$(realpath .)
 
 NAME=${1:-agg2}
 shift
@@ -21,7 +22,8 @@ mkdir -p store
 
 docker run -d --name ${NAME} --hostname ${NAME} \
 	-v ${PWD}/store:/store:rw \
-	--network ${NET} ${IMG} -x sock:411
+	-v ${D}/munge.key:/etc/munge/munge.key:rw \
+	--network ${NET} ${IMG} -x sock:411 -a munge
 
 # Limited wait for State.Running == true
 for ((I=0; I<5; I++)); do
@@ -35,6 +37,8 @@ if [[ "$STATE" != "true" ]]; then
 	exit -1
 fi
 
+sleep 1
+
 # Configure the daemon
 { cat <<EOF
 load name=store_sos
@@ -43,7 +47,7 @@ strgp_add name=sos plugin=store_sos container=meminfo schema=meminfo
 $(
 for P in ${PRDCRS[*]}; do
 	echo "prdcr_add name=${P} xprt=${XPRT} host=${P} port=${PORT} \
-		type=active reconnect=1000000"
+		type=active interval=1000000"
 done
 )
 prdcr_start_regex regex=.*
@@ -55,4 +59,4 @@ updtr_start name=all
 EOF
 } | docker exec -i ${NAME} ldmsd_controller --xprt sock \
 					    --host localhost \
-					    --port 411
+					    --port 411 --auth munge

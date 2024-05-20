@@ -13,8 +13,11 @@ IMG=ovishpc/ldms-agg:${BUILD_TAG}
 NET=test
 XPRT=sock
 PORT=411
+D=$(realpath $(dirname $0))
 
-docker run -d --name ${NAME} --hostname ${NAME} --network ${NET} ${IMG} -x sock:411
+docker run -d --name ${NAME} --hostname ${NAME} --network ${NET} \
+	-v ${D}/munge.key:/etc/munge/munge.key:rw \
+	${IMG} -x sock:411 -a munge
 
 # Limited wait for State.Running == true
 for ((I=0; I<5; I++)); do
@@ -28,12 +31,14 @@ if [[ "$STATE" != "true" ]]; then
 	exit -1
 fi
 
+sleep 1
+
 # Configure the daemon
 { cat <<EOF
 $(
 for P in ${PRDCRS[*]}; do
 	echo "prdcr_add name=${P} xprt=${XPRT} host=${P} port=${PORT} \
-		type=active reconnect=1000000"
+		type=active interval=1000000"
 done
 )
 prdcr_start_regex regex=.*
@@ -43,4 +48,4 @@ updtr_start name=all
 EOF
 } | docker exec -i ${NAME} ldmsd_controller --xprt sock \
 					    --host localhost \
-					    --port 411
+					    --port 411 --auth munge
