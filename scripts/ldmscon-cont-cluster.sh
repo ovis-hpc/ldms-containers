@@ -28,7 +28,7 @@ Descriptions:
     --sshd,--no-sshd
         Enable or disable sshd usage.
 
-    --asset-dir ASSET_DIR
+    --assets-dir ASSETS_DIR
         A directory that holds data (assets) for the docker cluster.
 
     --sshd-addr SSHD_ADDR
@@ -124,7 +124,7 @@ while (($#)); do
 		shift
 		;;
 	-a|--assets-dir)
-		handle_opt --asset-dir $2
+		handle_opt --assets-dir $2
 		shift
 		;;
 	-n|--num)
