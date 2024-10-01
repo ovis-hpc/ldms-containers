@@ -82,7 +82,6 @@ for C in test-samp-{1..4}; do
 	wait_running $C || _ERROR_EXIT "$C is not running"
 	_INFO "$C is running"
 done
-read
 
 
 # L1 aggregators
