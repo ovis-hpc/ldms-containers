@@ -25,8 +25,8 @@ case "${ARCH}" in
 		ARCH=arm64
 		;;
 esac
-BUILD_TAG=OVIS-4-${ARCH}
-MANIFEST_TAG=latest
+export BUILD_TAG=4.4.4-${ARCH}
+MANIFEST_TAG=4.4.4
 MANIFEST_IMAGES=(
 	ovishpc/ldms-{samp,agg}
 	# ovishpc/ldms-dev
@@ -34,7 +34,8 @@ MANIFEST_IMAGES=(
 	# ovishpc/ldms-{web-svc,grafana}
 	# ovishpc/ldms-storage
 )
-MANIFEST_ARCHS=( arm64 amd64 ppc64le )
+#MANIFEST_ARCHS=( arm64 amd64 ppc64le )
+MANIFEST_ARCHS=( arm64 amd64 )
 
 ############################################
 # ---- scripts/build-ovis-binaries.sh ---- #
@@ -42,15 +43,16 @@ MANIFEST_ARCHS=( arm64 amd64 ppc64le )
 
 # OVIS git repository and branch to check out from
 OVIS_REPO=https://github.com/ovis-hpc/ovis
-OVIS_BRANCH=OVIS-4
+OVIS_BRANCH=v4.4.4
 
 # SOS git repository and branch to check out from
 SOS_REPO=https://github.com/ovis-hpc/sos
 SOS_BRANCH=SOS-6
 
 # Maestro git repository and branch to check out from
-MAESTRO_REPO=https://github.com/ovis-hpc/maestro
-MAESTRO_BRANCH=master
+#MAESTRO_REPO=https://github.com/ovis-hpc/maestro
+MAESTRO_REPO=https://github.com/narategithub/maestro
+MAESTRO_BRANCH=narate-4.4.4
 
 # The name of the container for building OVIS binaries. This can be anything.
 BUILD_CONT=ldms-cont-ovis-build
@@ -66,7 +68,7 @@ MAKE_INSTALL="make install"
 
 # configure OPTIONS for SOS other than --prefix (*** This is a bash array ***)
 SOS_OPTIONS=(
-	CFLAGS=\"-O0 -ggdb3\"
+	CFLAGS=\"-ggdb3\"
 )
 
 # configure OPTIONS for OVIS other than --prefix (*** This is a bash array ***)
@@ -101,7 +103,7 @@ OVIS_OPTIONS=(
 	--enable-app-sampler
 	--enable-papi
 
-	CFLAGS=\"-O0 -ggdb3\"
+	CFLAGS=\"-ggdb3\"
 )
 
 # ---- UI components ---- #
