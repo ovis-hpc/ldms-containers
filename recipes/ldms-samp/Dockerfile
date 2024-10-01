@@ -8,8 +8,10 @@ SHELL [ "/bin/bash", "-c" ]
 
 # Get LDMS dependencies
 RUN export DEBIAN_FRONTEND=noninteractive ; \
+    set -x; \
+    set -e; \
     apt-get update -y ; \
-    apt-get install -y librdmacm1 libibverbs1 libpapi6.0 libpfm4 munge python3 ; \
+    apt-get install -y librdmacm1 libibverbs1 libpapi6.0 libpfm4 libjansson4 munge python3 ; \
     apt-get autoremove -y ; \
     apt-get clean -y ;
 
