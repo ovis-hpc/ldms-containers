@@ -1,3 +1,4 @@
 ovis/
 *.swp
 recipes/*/context
+passphrase.sh
