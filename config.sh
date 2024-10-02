@@ -30,10 +30,10 @@ MANIFEST_SRC_TAG=4.4.4
 MANIFEST_DST_TAG=latest
 MANIFEST_IMAGES=(
 	ovishpc/ldms-{samp,agg}
-	# ovishpc/ldms-dev
+	ovishpc/ldms-dev
 	# ovishpc/ldms-maestro
-	# ovishpc/ldms-{web-svc,grafana}
-	# ovishpc/ldms-storage
+	ovishpc/ldms-{web-svc,grafana}
+	ovishpc/ldms-storage
 )
 #MANIFEST_ARCHS=( arm64 amd64 ppc64le )
 MANIFEST_ARCHS=( arm64 amd64 )
