@@ -57,7 +57,7 @@ SOS_BRANCH=${SOS_BRANCH:-SOS-6}
 MAESTRO_REPO=${MAESTRO_REPO:-https://github.com/ovis-hpc/maestro}
 MAESTRO_BRANCH=${MAESTRO_BRANCH:-master}
 BUILD_CONT=${BUILD_CONT:-ldms-cont-ovis-build}
-BUILD_IMG=${BUILD_IMG:-ovishpc/ldms-dev}
+BUILD_IMG=${BUILD_IMG:-ovishpc/ldms-dev:${BUILD_TAG}}
 DEBUG=
 
 PREFIX=${PREFIX:-/opt/ovis}
