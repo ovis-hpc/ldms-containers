@@ -58,7 +58,7 @@ MAESTRO_BRANCH=narate-4.4.4
 BUILD_CONT=ldms-cont-ovis-build
 
 # The build image containing OVIS build prerequisites.
-BUILD_IMG=ovishpc/ldms-dev
+BUILD_IMG=ovishpc/ldms-dev:${BUILD_TAG}
 
 # OVIS prefix INSIDE the container. Please do not change this.
 PREFIX=/opt/ovis
@@ -133,7 +133,7 @@ DSOSDS_REPO=https://github.com/nick-enoent/dsosds
 #DSOSDS_BRANCH=1910e9a6d832b2114ab4421bbb61ea4de95b004d
 DSOSDS_BRANCH=7cb80504974a258bcec2752755fe081d36932182
 DSOSDS_BUILD_CONT=dsosds-build
-DSOSDS_BUILD_IMG=ovishpc/ldms-dev
+DSOSDS_BUILD_IMG=ovishpc/ldms-dev:${BUILD_TAG}
 
 #
 if [[ -f passphrase.sh ]]; then
