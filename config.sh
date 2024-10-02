@@ -26,7 +26,8 @@ case "${ARCH}" in
 		;;
 esac
 export BUILD_TAG=4.4.4-${ARCH}
-MANIFEST_TAG=4.4.4
+MANIFEST_SRC_TAG=4.4.4
+MANIFEST_DST_TAG=latest
 MANIFEST_IMAGES=(
 	ovishpc/ldms-{samp,agg}
 	# ovishpc/ldms-dev

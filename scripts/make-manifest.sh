@@ -1,22 +1,25 @@
 #!/bin/bash
 
 USAGE=$( cat <<EOF
-$(basename $0) [ -t MANIFEST_TAG ]
+$(basename $0) [ -t SRC_TAG ] [ -T DST_TAG ]
 
 Options:
-    -t,--tag,--manifest-tag MANIFEST_TAG
-        The MANIFEST_TAG to tag the manifests. This is also used as a base tag
-	for pulling corresponding images. See Descriptions below. If not
-	specified (in config.sh or in this option), the default is 'latest'.
+    -t SRC_TAG
+	The SRC_TAG as a base tag for pulling corresponding images. See
+	Descriptions below. If not specified (in config.sh or in this option),
+	the default is 'latest'.
+    -T DST_TAG
+        The TGT_TAG to tag the manifests. If not specified, it is set to
+	SRC_TAG.
 
 Descriptions:
     The script docker-pull ovishpc/ldms-{samp,agg,maestro,ui,grafana,storage}
-    from docker hub with tags \${MANIFEST_TAG}-amd64 and  \${MANIFEST_TAG}-arm64
-    and make the corresponding manifests with tag \${MANIFEST_TAG}. In other
+    from docker hub with tags \${SRC_TAG}-amd64 and  \${SRC_TAG}-arm64
+    and make the corresponding manifests with tag \${DST_TAG}. In other
     words, it does the following
         for X in ovishpc/ldms-{samp,agg,maestro,ui,grafana,storage} ; do
-	  docker pull \${X}:\${MANIFEST_TAG}-amd64
-	  docker pull \${X}:\${MANIFEST_TAG}-arm64
+	  docker pull \${X}:\${SRC_TAG}-amd64
+	  docker pull \${X}:\${SRC_TAG}-arm64
           docker manifest ...
 	done
    This is to make an image supporting both amd64 and arm64 under the same image
@@ -24,8 +27,8 @@ Descriptions:
 
 
 **** REMARK ****
-    Make sure that the ovishpc/ldms-*:\${MANIFEST_TAG}-amd64 and
-    ovishpc/ldms-*:\${MANIFEST_TAG}-arm64 on hub.docker.com are up-to-date.
+    Make sure that the ovishpc/ldms-*:\${SRC_TAG}-amd64 and
+    ovishpc/ldms-*:\${SRC_TAG}-arm64 on hub.docker.com are up-to-date.
     The manifests are built based on those *-amd64 and *-arm64 images on the
     docker hub.
 EOF
@@ -92,8 +95,12 @@ set -- "${ARGS[@]}"
 
 while (($#)); do
 	case "$1" in
-	-t|--tag|--manifest-tag)
-		handle_opt --manifest-tag $2
+	-t)
+		handle_opt --manifest-src-tag $2
+		shift
+		;;
+	-T)
+		handle_opt --manifest-dst-tag $2
 		shift
 		;;
 	--debug)
@@ -110,19 +117,21 @@ while (($#)); do
 	shift
 done
 
-MANIFEST_TAG=${MANIFEST_TAG:-latest}
+MANIFEST_SRC_TAG=${MANIFEST_SRC_TAG:-latest}
+MANIFEST_DST_TAG=${MANIFEST_DST_TAG:-${MANIFEST_SRC_TAG}}
 
 for X in ${MANIFEST_IMAGES[*]} ; do
-	M=${X}:${MANIFEST_TAG}
+	M=${X}:${MANIFEST_SRC_TAG}
+	TGT=${X}:${MANIFEST_DST_TAG}
 	_INFO "==== ${M} ===="
 	for A in ${MANIFEST_ARCHS[*]}; do
+		_INFO "pulling ${M}-${A}"
 		docker pull ${M}-${A}
 	done
 	set -x
-	docker manifest rm ${M} || true
+	docker manifest rm ${TGT} || true
 	OPT="-a ${M}"
-	# echo docker manifest create ${M} ${MANIFEST_ARCHS[*]/#/${OPT}-}
-	docker manifest create ${M} ${MANIFEST_ARCHS[*]/#/${OPT}-}
-	docker manifest push ${M}
+	docker manifest create ${TGT} ${MANIFEST_ARCHS[*]/#/${OPT}-}
+	docker manifest push ${TGT}
 	set +x
 done
