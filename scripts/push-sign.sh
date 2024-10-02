@@ -86,7 +86,10 @@ BUILD_TAG=${BUILD_TAG:?BUILD_TAG variable is not set}
 _INFO "PUSH_SIGN_LIST: ${PUSH_SIGN_LIST[*]}"
 
 for X in "${PUSH_SIGN_LIST[@]}"; do
-	docker push ${X}:${BUILD_TAG}
-	docker trust revoke ${X}:${BUILD_TAG}
-	docker trust sign ${X}:${BUILD_TAG}
+	OBJ="${X}:${BUILD_TAG}"
+	_INFO "==== ${OBJ} ===="
+	docker push ${OBJ}
+	docker trust revoke ${OBJ}
+	docker trust sign ${OBJ}
+	_INFO "--------------------------------"
 done
