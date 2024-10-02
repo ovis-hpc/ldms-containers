@@ -135,6 +135,16 @@ DSOSDS_BRANCH=7cb80504974a258bcec2752755fe081d36932182
 DSOSDS_BUILD_CONT=dsosds-build
 DSOSDS_BUILD_IMG=ovishpc/ldms-dev:${BUILD_TAG}
 
+PUSH_SIGN_LIST=(
+	ovishpc/ldms-dev
+	ovishpc/ldms-samp
+	ovishpc/ldms-agg
+	# ovishpc/ldms-maestro
+	ovishpc/ldms-web-svc
+	ovishpc/ldms-grafana
+	ovishpc/ldms-storage
+)
+
 #
 if [[ -f passphrase.sh ]]; then
 	# This shall contain DOCKER_CONTENT_TRUST_REPOSITORY_PASSPHRASE env var
