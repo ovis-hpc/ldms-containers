@@ -72,7 +72,20 @@ done
 
 BUILD_TAG=${BUILD_TAG:?BUILD_TAG variable is not set}
 
-for X in ovishpc/ldms-{samp,agg,maestro,ui,web-svc,grafana,storage} ; do
+[[ ${#PUSH_SIGN_LIST[*]} -gt 0 ]] ||
+	PUSH_SIGN_LIST=(
+		ovishpc/ldms-dev
+		ovishpc/ldms-samp
+		ovishpc/ldms-agg
+		ovishpc/ldms-maestro
+		ovishpc/ldms-web-svc
+		ovishpc/ldms-grafana
+		ovishpc/ldms-storage
+	)
+
+_INFO "PUSH_SIGN_LIST: ${PUSH_SIGN_LIST[*]}"
+
+for X in "${PUSH_SIGN_LIST[@]}"; do
 	docker push ${X}:${BUILD_TAG}
 	docker trust revoke ${X}:${BUILD_TAG}
 	docker trust sign ${X}:${BUILD_TAG}
