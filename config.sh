@@ -25,7 +25,7 @@ case "${ARCH}" in
 		ARCH=arm64
 		;;
 esac
-export BUILD_TAG=4.4.4-${ARCH}
+export BUILD_TAG=OVIS-4-${ARCH}
 MANIFEST_SRC_TAG=4.4.4
 MANIFEST_DST_TAG=latest
 MANIFEST_IMAGES=(
@@ -44,7 +44,7 @@ MANIFEST_ARCHS=( arm64 amd64 )
 
 # OVIS git repository and branch to check out from
 OVIS_REPO=https://github.com/ovis-hpc/ovis
-OVIS_BRANCH=v4.4.4
+OVIS_BRANCH=OVIS-4
 
 # SOS git repository and branch to check out from
 SOS_REPO=https://github.com/ovis-hpc/sos
@@ -52,8 +52,8 @@ SOS_BRANCH=SOS-6
 
 # Maestro git repository and branch to check out from
 #MAESTRO_REPO=https://github.com/ovis-hpc/maestro
-MAESTRO_REPO=https://github.com/narategithub/maestro
-MAESTRO_BRANCH=narate-4.4.4
+MAESTRO_REPO=https://github.com/ovis-hpc/maestro
+MAESTRO_BRANCH=master
 
 # The name of the container for building OVIS binaries. This can be anything.
 BUILD_CONT=ldms-cont-ovis-build
