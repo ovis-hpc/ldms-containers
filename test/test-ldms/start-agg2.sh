@@ -47,7 +47,7 @@ strgp_add name=sos plugin=store_sos container=meminfo schema=meminfo
 $(
 for P in ${PRDCRS[*]}; do
 	echo "prdcr_add name=${P} xprt=${XPRT} host=${P} port=${PORT} \
-		type=active interval=1000000"
+		type=active reconnect=1000000"
 done
 )
 prdcr_start_regex regex=.*
