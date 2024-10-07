@@ -164,6 +164,10 @@ git fetch origin ${OVIS_BRANCH}
 git checkout -b build FETCH_HEAD
 git config user.name 'root'
 git config user.email 'root@localhost'
+
+# retag v4.5.0 as annotated tag
+git tag -f -a -m 'v4.5.0' v4.5.0 v4.5.0
+
 popd # ovis
 
 pushd sos
