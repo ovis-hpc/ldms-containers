@@ -53,7 +53,7 @@ if [[ \" \${OPTS} \" == *\\ munge\\ * ]]; then\
     exit -1\n\
   fi\n\
 fi\n\
-CMD=\"ldmsd -F \${OPTS}\"\n\
+CMD=\"ldmsd \${OPTS}\"\n\
 echo \"Executing command: \${CMD}\"\n\
 exec \${CMD}\n\
 \n\
