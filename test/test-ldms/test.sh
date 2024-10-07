@@ -72,6 +72,22 @@ wait_running() {
 	return -1
 }
 
+[[ -f munge.key ]] || {
+        touch munge.key
+        {
+cat <<EOF
+chown munge:munge /etc/munge.key
+python3 -c 'print("0"*1024)' > /etc/munge.key
+chmod 600 /etc/munge.key
+EOF
+        } | docker run --rm -i --entrypoint /bin/bash \
+                -v ${PWD}/munge.key:/etc/munge.key:rw \
+                ovishpc/ldms-agg:${BUILD_TAG}
+} || {
+        _ERROR "Failed creating munge.key"
+        exit -1
+}
+
 # Samplers
 for C in test-samp-{1..4}; do
 	_INFO starting $C
