@@ -27,11 +27,11 @@ case "${ARCH}" in
 esac
 export BUILD_TAG=4.4.4-${ARCH}
 MANIFEST_SRC_TAG=4.4.4
-MANIFEST_DST_TAG=latest
+MANIFEST_DST_TAG=4.4.4
 MANIFEST_IMAGES=(
 	ovishpc/ldms-{samp,agg}
 	ovishpc/ldms-dev
-	# ovishpc/ldms-maestro
+	ovishpc/ldms-maestro
 	ovishpc/ldms-{web-svc,grafana}
 	ovishpc/ldms-storage
 )
@@ -51,9 +51,8 @@ SOS_REPO=https://github.com/ovis-hpc/sos
 SOS_BRANCH=SOS-6
 
 # Maestro git repository and branch to check out from
-#MAESTRO_REPO=https://github.com/ovis-hpc/maestro
-MAESTRO_REPO=https://github.com/narategithub/maestro
-MAESTRO_BRANCH=narate-4.4.4
+MAESTRO_REPO=https://github.com/ovis-hpc/maestro
+MAESTRO_BRANCH=OVIS-4.4.4
 
 # The name of the container for building OVIS binaries. This can be anything.
 BUILD_CONT=ldms-cont-ovis-build
@@ -140,7 +139,7 @@ PUSH_SIGN_LIST=(
 	ovishpc/ldms-dev
 	ovishpc/ldms-samp
 	ovishpc/ldms-agg
-	# ovishpc/ldms-maestro
+	ovishpc/ldms-maestro
 	ovishpc/ldms-web-svc
 	ovishpc/ldms-grafana
 	ovishpc/ldms-storage
