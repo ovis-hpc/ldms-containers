@@ -26,8 +26,8 @@ case "${ARCH}" in
 		;;
 esac
 export BUILD_TAG=OVIS-4-${ARCH}
-MANIFEST_SRC_TAG=4.4.4
-MANIFEST_DST_TAG=latest
+MANIFEST_SRC_TAG=OVIS-4
+MANIFEST_DST_TAG=OVIS-4
 MANIFEST_IMAGES=(
 	ovishpc/ldms-{samp,agg}
 	ovishpc/ldms-dev
@@ -35,8 +35,11 @@ MANIFEST_IMAGES=(
 	ovishpc/ldms-{web-svc,grafana}
 	ovishpc/ldms-storage
 )
-#MANIFEST_ARCHS=( arm64 amd64 ppc64le )
-MANIFEST_ARCHS=( arm64 amd64 )
+MANIFEST_ARCHS=(
+	arm64
+	amd64
+	# ppc64le
+)
 
 ############################################
 # ---- scripts/build-ovis-binaries.sh ---- #
