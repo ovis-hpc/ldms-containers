@@ -74,6 +74,7 @@ wait_running() {
 
 [[ -f munge.key ]] || {
         touch munge.key
+	chmod 600 munge.key
         {
 cat <<EOF
 chown munge:munge /etc/munge.key
