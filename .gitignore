@@ -2,3 +2,10 @@ ovis/
 *.swp
 recipes/*/context
 passphrase.sh
+ignore/
+assets/
+dsosds/
+payload.*
+dist/
+.vimrc
+.ctrlpignore
