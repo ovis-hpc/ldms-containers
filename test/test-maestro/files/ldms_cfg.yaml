@@ -58,23 +58,28 @@ aggregators:
               - regex : .*
                 field : inst
 
+plugins:
+  meminfo1 :
+    name : meminfo       # this is the name of the plugin
+    interval    : 1.0s
+    offset      : "0s"
+    config      : &simple_samp_config
+      - schema : meminfo
+        component_id : "${COMPID}"
+        perm : "0777"
+
+  store_sos1 :
+    name   : store_sos
+    config : [{ path : /store }]
+
 samplers:
   - daemons : *samp-names
-    plugins :
-      - name        : meminfo # Variables can be specific to plugin
-        interval    : "1s" # Used when starting the sampler plugin
-        offset      : "0s"
-        config : &simple_samp_config
-          - component_id : "${COMPID}"
-            perm : "0777"
+    plugins : [ 'meminfo1' ]
 
 stores:
-  - name      : sos-meminfo
+  sos-meminfo :
     daemons   : *L2-name
     container : cont
     schema    : meminfo
     flush     : 10s
-    plugin :
-      name   : store_sos
-      config :
-        - path : /store
+    plugin    : store_sos1
