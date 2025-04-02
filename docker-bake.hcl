@@ -16,7 +16,7 @@ variable "LDMS_REPO" {
 }
 
 variable "LDMS_BRANCH" {
-  default = "OVIS-4"
+  default = "main"
 }
 
 variable "SOS_REPO" {
