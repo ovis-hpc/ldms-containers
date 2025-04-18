@@ -63,6 +63,10 @@ variable "SOSDBGRAFANA_BRANCH" {
 group "default" {
   targets = [
     "ldms-dev",
+    "ldms-dev-ubuntu-2204",
+    "ldms-dev-ubuntu-2404",
+    "ldms-dev-alma-8",
+    "ldms-dev-alma-9",
     "ldms-build",
     "ldms-agg",
     "ldms-samp",
@@ -75,6 +79,10 @@ group "default" {
 group "manifest" {
   targets = [
     "manifest-ldms-dev",
+    "manifest-ldms-dev-ubuntu-2204",
+    "manifest-ldms-dev-ubuntu-2404",
+    "manifest-ldms-dev-alma-8",
+    "manifest-ldms-dev-alma-9",
     "manifest-ldms-build",
     "manifest-ldms-agg",
     "manifest-ldms-samp",
@@ -96,6 +104,30 @@ target "ldms-dev" {
   inherits = [ "_common" ]
   context = "buildx/ldms-dev"
   tags = [ "ovishpc/ldms-dev:${TAG}-${ARCH}" ]
+}
+
+target "ldms-dev-ubuntu-2204" {
+  inherits = [ "_common" ]
+  context = "buildx/ldms-dev-ubuntu-2204"
+  tags = [ "ovishpc/ldms-dev-ubuntu-2204:${TAG}-${ARCH}" ]
+}
+
+target "ldms-dev-ubuntu-2404" {
+  inherits = [ "_common" ]
+  context = "buildx/ldms-dev-ubuntu-2404"
+  tags = [ "ovishpc/ldms-dev-ubuntu-2404:${TAG}-${ARCH}" ]
+}
+
+target "ldms-dev-alma-8" {
+  inherits = [ "_common" ]
+  context = "buildx/ldms-dev-alma-8"
+  tags = [ "ovishpc/ldms-dev-alma-8:${TAG}-${ARCH}" ]
+}
+
+target "ldms-dev-alma-9" {
+  inherits = [ "_common" ]
+  context = "buildx/ldms-dev-alma-9"
+  tags = [ "ovishpc/ldms-dev-alma-9:${TAG}-${ARCH}" ]
 }
 
 target "ldms-build" {
@@ -175,6 +207,42 @@ target "manifest-ldms-dev" {
   tags = [ "ovishpc/ldms-dev:${TAG}" ]
   args = {
     BASE = "ovishpc/ldms-dev:${TAG}"
+  }
+}
+
+target "manifest-ldms-dev-ubuntu-2204" {
+  inherits = [ "_manifest_common" ]
+  context = "manifest"
+  tags = [ "ovishpc/ldms-dev-ubuntu-2204:${TAG}" ]
+  args = {
+    BASE = "ovishpc/ldms-dev-ubuntu-2204:${TAG}"
+  }
+}
+
+target "manifest-ldms-dev-ubuntu-2404" {
+  inherits = [ "_manifest_common" ]
+  context = "manifest"
+  tags = [ "ovishpc/ldms-dev-ubuntu-2404:${TAG}" ]
+  args = {
+    BASE = "ovishpc/ldms-dev-ubuntu-2404:${TAG}"
+  }
+}
+
+target "manifest-ldms-dev-alma-8" {
+  inherits = [ "_manifest_common" ]
+  context = "manifest"
+  tags = [ "ovishpc/ldms-dev-alma-8:${TAG}" ]
+  args = {
+    BASE = "ovishpc/ldms-dev-alma-8:${TAG}"
+  }
+}
+
+target "manifest-ldms-dev-alma-9" {
+  inherits = [ "_manifest_common" ]
+  context = "manifest"
+  tags = [ "ovishpc/ldms-dev-alma-9:${TAG}" ]
+  args = {
+    BASE = "ovishpc/ldms-dev-alma-9:${TAG}"
   }
 }
 
