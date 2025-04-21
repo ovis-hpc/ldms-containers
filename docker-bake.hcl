@@ -124,6 +124,15 @@ target "ldms-dev-alma-8" {
   tags = [ "ovishpc/ldms-dev-alma-8:${TAG}-${ARCH}" ]
 }
 
+target "ldms-compat-alma-8" {
+  inherits = [ "_common" ]
+  context = "buildx/ldms-compat-alma-8"
+  tags = [ "ovishpc/ldms-compat-alma-8:${TAG}-${ARCH}" ]
+  contexts = {
+    build = "target:ldms-dev-alma-8"
+  }
+}
+
 target "ldms-dev-alma-9" {
   inherits = [ "_common" ]
   context = "buildx/ldms-dev-alma-9"
