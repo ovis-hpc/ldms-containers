@@ -67,6 +67,7 @@ group "default" {
     "ldms-dev-ubuntu-2404",
     "ldms-dev-alma-8",
     "ldms-dev-alma-9",
+    "ldms-dev-opensuse-15",
     "ldms-build",
     "ldms-agg",
     "ldms-samp",
@@ -83,6 +84,7 @@ group "manifest" {
     "manifest-ldms-dev-ubuntu-2404",
     "manifest-ldms-dev-alma-8",
     "manifest-ldms-dev-alma-9",
+    "manifest-ldms-dev-opensuse-15",
     "manifest-ldms-build",
     "manifest-ldms-agg",
     "manifest-ldms-samp",
@@ -137,6 +139,12 @@ target "ldms-dev-alma-9" {
   inherits = [ "_common" ]
   context = "buildx/ldms-dev-alma-9"
   tags = [ "ovishpc/ldms-dev-alma-9:${TAG}-${ARCH}" ]
+}
+
+target "ldms-dev-opensuse-15" {
+  inherits = [ "_common" ]
+  context = "buildx/ldms-dev-opensuse-15"
+  tags = [ "ovishpc/ldms-dev-opensuse-15:${TAG}-${ARCH}" ]
 }
 
 target "ldms-build" {
@@ -252,6 +260,15 @@ target "manifest-ldms-dev-alma-9" {
   tags = [ "ovishpc/ldms-dev-alma-9:${TAG}" ]
   args = {
     BASE = "ovishpc/ldms-dev-alma-9:${TAG}"
+  }
+}
+
+target "manifest-ldms-dev-opensuse-15" {
+  inherits = [ "_manifest_common" ]
+  context = "manifest"
+  tags = [ "ovishpc/ldms-dev-opensuse-15:${TAG}" ]
+  args = {
+    BASE = "ovishpc/ldms-dev-opensuse-15:${TAG}"
   }
 }
 
