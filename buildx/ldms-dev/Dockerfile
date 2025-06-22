@@ -302,11 +302,13 @@ apt-get install -y man-db git build-essential python3-dev python3-pip etcd \
 	librdmacm-dev \
 	gdb dnsutils iproute2 inetutils-ping \
 	npm \
+	python3-docutils \
 	librdkafka-dev \
 	openssh-server \
 	openjdk-11-jdk \
 	avro-bin libavro-dev python3-avro \
 	libjansson-dev \
+	pdsh \
 	; \
 ln -s /usr/bin/cython3 /usr/bin/cython ; \
 apt-get autoremove -y; \
@@ -347,3 +349,8 @@ make install ;\
 RUN pip3 install confluent_kafka==2.3.0 fastavro==1.9.2
 
 RUN /usr/sbin/ldconfig
+
+# pdsh using SSH by default
+RUN /bin/echo >/etc/profile.d/pdsh.sh -e "\
+export PDSH_RCMD_TYPE=ssh\n\
+"
