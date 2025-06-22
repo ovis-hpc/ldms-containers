@@ -24,7 +24,7 @@ variable "SOS_REPO" {
 }
 
 variable "SOS_BRANCH" {
-  default = "SOS-6"
+  default = "b2.6"
 }
 
 variable "MAESTRO_REPO" {

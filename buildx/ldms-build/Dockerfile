@@ -7,9 +7,9 @@ SHELL [ "/bin/bash", "-c" ]
 # These are default values, can be overridden by environment variables, or
 # variables in docker-bake.hcl file.
 ARG LDMS_REPO=https://github.com/ovis-hpc/ldms
-ARG LDMS_BRANCH=OVIS-4
+ARG LDMS_BRANCH=main
 ARG SOS_REPO=https://github.com/ovis-hpc/sos
-ARG SOS_BRANCH=SOS-6
+ARG SOS_BRANCH=b2.6
 ARG MAESTRO_REPO=https://github.com/ovis-hpc/maestro
 ARG MAESTRO_BRANCH=master
 ARG NUMSOS_REPO=https://github.com/narategithub/numsos
