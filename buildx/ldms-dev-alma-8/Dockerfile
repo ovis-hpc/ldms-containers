@@ -2,6 +2,9 @@
 
 FROM almalinux:8
 
+# Defined in docker-bake.hcl
+ARG ARCH
+
 SHELL [ "/bin/bash", "-c" ]
 
 # Informative prompt
@@ -142,10 +145,42 @@ dnf install -y \
 	librdkafka-devel \
 	openssh-server \
 	jansson-devel \
-	avro-c-devel confluent-libserdes-devel \
 	rpcgen \
 	libfabric-devel \
 	; \
+'
+
+# libavro
+RUN /bin/bash -c '\
+if [[ $ARCH = arm64 ]]; then \
+set -e ; \
+cd /root ; \
+git clone https://github.com/apache/avro -b branch-1.12 ; \
+cd avro/lang/c ; \
+mkdir -p build ; \
+cd build ; \
+cmake .. -DCMAKE_INSTALL_PREFIX=/usr/local -DCMAKE_BUILD_TYPE=Debug ; \
+make ; \
+make test ; \
+make install ; \
+elif [[ $ARCH = amd64 ]]; then \
+dnf install -y avro-c-devel ; \
+fi \
+'
+
+# libserdes
+RUN /bin/bash -c '\
+if [[ $ARCH = arm64 ]]; then \
+set -e ;\
+cd /root ;\
+git clone https://github.com/confluentinc/libserdes -b v7.3.2 ;\
+cd libserdes ;\
+./configure ;\
+make ;\
+make install ;\
+elif [[ $ARCH = amd64 ]]; then \
+dnf install -y confluent-libserdes-devel ; \
+fi \
 '
 
 # ssh daemon
