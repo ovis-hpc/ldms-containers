@@ -104,8 +104,8 @@ git config user.email 'root@localhost'
 # annotated tag 'main' b/c configure script uses annotated tag for LDMS Version.
 # This added tag only be used for building 'main'.
 [[ "${LDMS_BRANCH}" != "main" ]] || {
-	MAIN_TAG=$( git show -s --format=4.6.0-%h main )
-	git tag -f -a -m ${MAIN_TAG} main ${MAIN_TAG}
+	MAIN_TAG=$( git show -s --format=4.6.0-%h origin/main )
+	git tag -f -a -m ${MAIN_TAG} ${MAIN_TAG} origin/main
 }
 
 popd # ldms
