@@ -227,6 +227,15 @@ target "ldms-grafana" {
   }
 }
 
+target "store-test" {
+  inherits = [ "_common" ]
+  context = "buildx/store-test"
+  tags = [ "ovishpc/store-test:${TAG}-${ARCH}" ]
+  args = {
+    BASE = "ovishpc/ldms-build:${TAG}-${ARCH}"
+  }
+}
+
 # Manifest targets
 
 target "manifest-ldms-dev" {
